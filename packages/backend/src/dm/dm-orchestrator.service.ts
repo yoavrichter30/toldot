@@ -2,7 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { OllamaClient } from '../ollama/ollama.client';
 import { EraService } from '../era/era.service';
 import { ValidationEngineService } from '../validation/validation-engine.service';
-import { Session, GameState } from '../session/session.types';
+import { Session, GameState, Grade } from '../session/session.types';
 import { DMResponse, TurnResult, SpawnedEvent } from './dm.types';
 import { ValidationResult, ValidatedEffect } from '@/validation/validation.types';
 import { Era } from '@/era/era.types';
@@ -55,16 +55,34 @@ async processTurn(action: string, session: Session): Promise<TurnResult> {
     // Apply accepted effects
     const newState = this.applyEffects(session.state, validation.accepted);
 
-    // Spawn events
-    const spawnedEvents: SpawnedEvent[] = (dmResponse.spawned_events || []).map(e => ({
-      id: e.id,
-      title: e.title,
-      description: e.description,
-      choices: e.choices,
-    }));
+    // Spawn events — enrich with template data when available
+    const eventTemplates = era.events || [];
+    const spawnedEvents: SpawnedEvent[] = (dmResponse.spawned_events || []).map(e => {
+      const template = eventTemplates.find(t => t.id === e.id);
+      if (template) {
+        // Rich version from template with full description, choices, and effects
+        return {
+          id: template.id,
+          title: template.title,
+          description: template.description,
+          choices: template.choices.map(c => ({
+            label: c.label,
+            key: c.key,
+            effects: c.effects,
+          })),
+        };
+      }
+      // Fall through to LLM's version (no template match)
+      return {
+        id: e.id,
+        title: e.title,
+        description: e.description,
+        choices: e.choices,
+      };
+    });
 
     // Check win/loss
-    const { gameOver, outcome } = this.checkWinLoss(newState, session, era);
+    const { gameOver, grade } = this.checkWinLoss(newState, session, era);
 
     // Advance turn
     newState.turn = session.currentTurn + 1;
@@ -78,7 +96,7 @@ async processTurn(action: string, session: Session): Promise<TurnResult> {
       historicalNotes: dmResponse.historical_notes || [],
       newState,
       gameOver,
-      outcome,
+      grade,
       turnNumber: newState.turn,
     };
   }
@@ -174,7 +192,7 @@ async processTurn(action: string, session: Session): Promise<TurnResult> {
     return newState;
   }
 
-  private checkWinLoss(state: GameState, session: Session, era: Era): { gameOver: boolean; outcome?: 'won' | 'lost' } {
+  private checkWinLoss(state: GameState, session: Session, era: Era): { gameOver: boolean; grade?: Grade } {
     // Automatic loss conditions
     if (state.resources.funds <= 0) {
       state.losses['funds_exhausted'] = (state.losses['funds_exhausted'] || 0) + 1;
@@ -183,15 +201,50 @@ async processTurn(action: string, session: Session): Promise<TurnResult> {
     }
 
     if (state.losses['funds_exhausted'] >= 6) {
-      return { gameOver: true, outcome: 'lost' };
+      return { gameOver: true, grade: 'loss' };
+    }
+
+    // Loss if fewer than 2 viable locations for 6 consecutive turns
+    const viableLocations = state.locations.filter(
+      l => l.housing > 0 && l.health > 0 && l.water > 0,
+    ).length;
+    if (viableLocations < 2) {
+      state.losses['locations_depleted'] = (state.losses['locations_depleted'] || 0) + 1;
+    } else {
+      state.losses['locations_depleted'] = 0;
+    }
+
+    if (state.losses['locations_depleted'] >= 6) {
+      return { gameOver: true, grade: 'loss' };
     }
 
     // Check if turn limit reached
     if (state.turn >= era.meta.maxTurns) {
-      return { gameOver: true, outcome: 'won' }; // graded by epilogue
+      return { gameOver: true, grade: this.evaluateGrade(state, era) };
     }
 
     return { gameOver: false };
+  }
+
+  private evaluateGrade(state: GameState, era: Era): Grade {
+    const tracks = state.foundationTracks;
+    const resources = state.resources;
+    const majorProjects = state.projects.filter(p => p.status === 'completed' && p.id.startsWith('major'));
+
+    // Gold: strong foundation
+    if (tracks.settlementViability >= 50 && tracks.economicIndependence >= 50 &&
+        tracks.hebrewPublicLife >= 40 && resources.funds >= 100 && resources.publicTrust >= 60) {
+      return 'gold';
+    }
+
+    // Silver: solid progress
+    if (tracks.settlementViability >= 40 && tracks.economicIndependence >= 30 &&
+        resources.funds >= 0 && resources.publicTrust >= 30) {
+      return 'silver';
+    }
+
+    // Bronze: survived but struggled
+    return 'bronze';
   }
 
   private advanceDate(currentDate: string): string {

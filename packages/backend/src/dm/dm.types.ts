@@ -1,4 +1,4 @@
-import { Effect, GameState } from '../session/session.types';
+import { Effect, GameState, Grade } from '../session/session.types';
 import { RejectedEffect } from '../validation/validation.types';
 
 export interface DMResponse {
@@ -32,7 +32,7 @@ export interface TurnResult {
   historicalNotes: string[];
   newState: GameState;
   gameOver: boolean;
-  outcome?: 'won' | 'lost';
+  grade?: Grade;
   turnNumber: number;
 }
 
@@ -40,5 +40,5 @@ export interface SpawnedEvent {
   id: string;
   title: string;
   description: string;
-  choices?: Array<{ label: string; key: string }>;
+  choices?: Array<{ label: string; key: string; effects?: Record<string, number> }>;
 }

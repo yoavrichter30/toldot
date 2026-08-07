@@ -51,7 +51,7 @@ export class GameController {
     session.currentTurn = result.turnNumber;
     session.date = result.newState.date;
     if (result.gameOver) {
-      session.status = result.outcome || 'won';
+      session.status = result.grade || 'bronze';
     }
 
     this.sessionService.updateSession(session);
@@ -84,7 +84,7 @@ export class GameController {
         projects: result.newState.projects,
       },
       gameOver: result.gameOver,
-      outcome: result.outcome,
+      grade: result.grade,
       maxTurns: this.eraService.loadEra(session.eraId).meta.maxTurns,
     };
   }

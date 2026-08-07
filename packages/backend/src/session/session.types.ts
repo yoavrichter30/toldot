@@ -1,5 +1,7 @@
 import { RejectedEffect } from '../validation/validation.types';
 
+export type Grade = 'gold' | 'silver' | 'bronze' | 'loss';
+
 export interface GameState {
   date: string;
   turn: number;
@@ -63,6 +65,7 @@ export interface EventState {
 export interface EventChoice {
   label: string;
   key: string;
+  effects?: Record<string, number>;
 }
 
 export interface Session {
@@ -70,7 +73,7 @@ export interface Session {
   eraId: string;
   currentTurn: number;
   date: string;
-  status: 'active' | 'won' | 'lost';
+  status: 'active' | Grade;
   state: GameState;
   createdAt: string;
   updatedAt: string;

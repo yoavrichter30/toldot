@@ -14,7 +14,7 @@ interface GameState {
   events: SpawnedEvent[];
   state: TurnResponse['state'] | null;
   gameOver: boolean;
-  outcome: string | undefined;
+  grade: string | undefined;
   loading: boolean;
   error: string | null;
 }
@@ -40,7 +40,7 @@ const initialState: GameState = {
   events: [],
   state: null,
   gameOver: false,
-  outcome: undefined,
+  grade: undefined,
   loading: false,
   error: null,
 };
@@ -50,7 +50,7 @@ function gameReducer(state: GameState, action: GameAction): GameState {
     case 'SET_SCREEN':
       return { ...state, screen: action.screen, error: null };
     case 'NEW_SESSION':
-      return { ...state, sessionId: action.sessionId, eraId: action.eraId, screen: 'playing', turn: 0, gameOver: false, outcome: undefined, journalNotes: [] };
+      return { ...state, sessionId: action.sessionId, eraId: action.eraId, screen: 'playing', turn: 0, gameOver: false, grade: undefined, journalNotes: [] };
     case 'SET_TURN':
       return {
         ...state,
@@ -63,7 +63,7 @@ function gameReducer(state: GameState, action: GameAction): GameState {
         events: action.data.events,
         state: action.data.state,
         gameOver: action.data.gameOver,
-        outcome: action.data.outcome,
+        grade: action.data.grade,
         screen: action.data.gameOver ? 'game-over' : 'playing',
         loading: false,
         error: null,
@@ -82,7 +82,7 @@ function gameReducer(state: GameState, action: GameAction): GameState {
         events: [],
         journalNotes: [],
         gameOver: finished,
-        outcome: finished ? session.status : undefined,
+        grade: finished ? session.status : undefined,
         loading: false,
         error: null,
       };

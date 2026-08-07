@@ -51,6 +51,8 @@ export interface GameStateView {
   projects: unknown[];
 }
 
+export type Grade = 'gold' | 'silver' | 'bronze' | 'loss';
+
 export interface TurnResponse {
   turn: number;
   date: string;
@@ -61,7 +63,7 @@ export interface TurnResponse {
   historicalNotes: string[];
   state: GameStateView;
   gameOver: boolean;
-  outcome?: string;
+  grade?: Grade;
   maxTurns: number;
 }
 
