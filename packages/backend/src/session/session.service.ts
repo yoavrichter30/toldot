@@ -82,6 +82,16 @@ export class SessionService {
     }));
   }
 
+  updateSession(session: Session): void {
+    session.updatedAt = new Date().toISOString();
+    this.db.database
+      .prepare(`UPDATE sessions SET current_turn = ?, date = ?, status = ?, state_json = ?, updated_at = ?, epilogue = ?
+                 WHERE id = ?`)
+      .run(session.currentTurn, session.date, session.status,
+           JSON.stringify(session.state), session.updatedAt,
+           session.epilogue ?? null, session.id);
+  }
+
   logTurn(turn: TurnLog): void {
     this.db.database
       .prepare(`INSERT INTO turn_log (session_id, turn_number, player_action, dm_narration, state_snapshot, effects_applied, effects_rejected, created_at)

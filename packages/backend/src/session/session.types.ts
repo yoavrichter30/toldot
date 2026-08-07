@@ -1,3 +1,5 @@
+import { RejectedEffect } from '../validation/validation.types';
+
 export interface GameState {
   date: string;
   turn: number;
@@ -90,7 +92,7 @@ export interface TurnLog {
   dmNarration: string;
   stateSnapshot: GameState;
   effectsApplied: Effect[];
-  effectsRejected: Effect[];
+  effectsRejected: RejectedEffect[];
   createdAt: string;
 }
 
