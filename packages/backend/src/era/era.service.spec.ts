@@ -1,5 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { EraService } from './era.service';
+import { EraValidatorService } from './era-validator.service';
 import { NotFoundException } from '@nestjs/common';
 
 describe('EraService', () => {
@@ -7,7 +8,7 @@ describe('EraService', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [EraService],
+      providers: [EraService, EraValidatorService],
     }).compile();
     service = module.get<EraService>(EraService);
   });

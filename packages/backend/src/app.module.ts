@@ -1,4 +1,7 @@
 import { Module } from '@nestjs/common';
+import { EraModule } from './era/era.module';
 
-@Module({})
+@Module({
+  imports: [EraModule],
+})
 export class AppModule {}
