@@ -76,17 +76,6 @@ export interface SessionData {
   updatedAt: string;
 }
 
-export function isSessionData(value: unknown): value is SessionData {
-  if (typeof value !== 'object' || value === null) return false;
-  if (!('id' in value) || typeof value.id !== 'string') return false;
-  if (!('eraId' in value) || typeof value.eraId !== 'string') return false;
-  if (!('currentTurn' in value) || typeof value.currentTurn !== 'number') return false;
-  if (!('date' in value) || typeof value.date !== 'string') return false;
-  if (!('status' in value) || typeof value.status !== 'string') return false;
-  if (!('state' in value) || typeof value.state !== 'object' || value.state === null) return false;
-  return true;
-}
-
 async function request<T>(url: string, init?: RequestInit): Promise<T> {
   const res = await fetch(url, init);
   if (!res.ok) throw new Error(`Request failed: ${res.status} ${res.statusText}`);

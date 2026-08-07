@@ -24,8 +24,7 @@ type GameAction =
   | { type: 'SET_TURN'; data: TurnResponse }
   | { type: 'SET_LOADING'; loading: boolean }
   | { type: 'SET_ERROR'; error: string | null }
-  | { type: 'LOAD_SESSION'; session: SessionData }
-  | { type: 'SET_ERA'; eraId: string };
+  | { type: 'LOAD_SESSION'; session: SessionData };
 
 const initialState: GameState = {
   screen: 'home',

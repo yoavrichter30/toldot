@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useGame } from '../context/GameContext';
 import { processTurn, getSession, SpawnedEvent } from '../api/game';
 import { DMNarrative } from './DMNarrative';
@@ -11,6 +11,7 @@ export function GameScreen() {
   const { state, dispatch } = useGame();
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [events, setEvents] = useState<SpawnedEvent[]>([]);
+  const openingStarted = useRef(false);
 
   const handleSend = async (action: string) => {
     if (!state.sessionId) return;
@@ -26,16 +27,26 @@ export function GameScreen() {
     }
   };
 
+  const handleEventChoice = (eventId: string, choiceKey: string) => {
+    // Record the choice by removing the resolved event
+    setEvents(prev => prev.filter(ev => ev.id !== eventId));
+    console.log(`Event ${eventId} resolved with choice: ${choiceKey}`);
+  };
+
   useEffect(() => {
+    if (openingStarted.current) return;
     if (state.sessionId && state.turn === 0) {
+      openingStarted.current = true;
       getSession(state.sessionId).then(data => {
         if (data.session) {
           // Generate initial DM vignette
           handleSend('The committee begins its work.');
         }
-      }).catch(() => {});
+      }).catch(() => {
+        openingStarted.current = false;
+      });
     }
-  }, [state.sessionId]);
+  }, [state.sessionId, state.turn, handleSend]);
 
   if (state.gameOver) return <GameOverScreen />;
 
@@ -54,7 +65,7 @@ export function GameScreen() {
         <div>
           <DMNarrative narration={state.narration} historicalNotes={state.historicalNotes} />
           {events.map((ev, i) => (
-            <EventCard key={ev?.id ?? i} event={ev} />
+            <EventCard key={ev?.id ?? i} event={ev} onChoice={handleEventChoice} />
           ))}
           <div style={{ marginTop: '1rem' }}>
             <ActionInput suggestions={suggestions} onSend={handleSend} disabled={state.loading} />
