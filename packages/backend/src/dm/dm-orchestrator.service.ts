@@ -4,7 +4,8 @@ import { EraService } from '../era/era.service';
 import { ValidationEngineService } from '../validation/validation-engine.service';
 import { Session, GameState } from '../session/session.types';
 import { DMResponse, TurnResult, SpawnedEvent } from './dm.types';
-import { ValidationResult } from '../validation/validation.types';
+import { ValidationResult, ValidatedEffect } from '@/validation/validation.types';
+import { Era } from '@/era/era.types';
 
 @Injectable()
 export class DMOrchestratorService {
@@ -37,7 +38,7 @@ export class DMOrchestratorService {
 
     // Validate effects
     const validation: ValidationResult = this.validationEngine.validateEffects(
-      dmResponse.proposed_effects.map(e => ({
+      (dmResponse.proposed_effects || []).map(e => ({
         target: e.target,
         id: e.id,
         delta: e.delta,
@@ -59,7 +60,7 @@ export class DMOrchestratorService {
     }));
 
     // Check win/loss
-    const { gameOver, outcome } = this.checkWinLoss(newState, session);
+    const { gameOver, outcome } = this.checkWinLoss(newState, session, era);
 
     // Advance turn
     newState.turn = session.currentTurn + 1;
@@ -78,7 +79,7 @@ export class DMOrchestratorService {
     };
   }
 
-  private buildPrompt(era: any, state: GameState, action: string): string {
+  private buildPrompt(era: Era, state: GameState, action: string): string {
     const stateSummary = JSON.stringify({
       date: state.date,
       turn: state.turn,
@@ -125,7 +126,7 @@ export class DMOrchestratorService {
     }
   }
 
-  private applyEffects(state: GameState, accepted: any[]): GameState {
+  private applyEffects(state: GameState, accepted: ValidatedEffect[]): GameState {
     const newState = JSON.parse(JSON.stringify(state)) as GameState;
     for (const item of accepted) {
       const eff = item.effect;
@@ -169,7 +170,7 @@ export class DMOrchestratorService {
     return newState;
   }
 
-  private checkWinLoss(state: GameState, session: Session): { gameOver: boolean; outcome?: 'won' | 'lost' } {
+  private checkWinLoss(state: GameState, session: Session, era: Era): { gameOver: boolean; outcome?: 'won' | 'lost' } {
     // Automatic loss conditions
     if (state.resources.funds <= 0) {
       state.losses['funds_exhausted'] = (state.losses['funds_exhausted'] || 0) + 1;
@@ -182,7 +183,6 @@ export class DMOrchestratorService {
     }
 
     // Check if turn limit reached
-    const era = this.eraService.loadEra(session.eraId);
     if (state.turn >= era.meta.maxTurns) {
       return { gameOver: true, outcome: 'won' }; // graded by epilogue
     }
