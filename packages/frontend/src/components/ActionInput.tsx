@@ -18,18 +18,15 @@ export function ActionInput({ suggestions, onSend, disabled }: Props) {
   return (
     <div>
       {suggestions.length > 0 && (
-        <div style={{ marginBottom: '0.5rem' }}>
-          <div style={{ fontSize: '0.85rem', color: '#666', marginBottom: '0.3rem' }}>Suggested actions:</div>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+        <div className="suggestions">
+          <div className="suggestions-label">Suggested actions:</div>
+          <div className="suggestion-chips">
             {suggestions.map((s, i) => (
               <button
                 key={i}
+                className="suggestion-chip"
                 onClick={() => setAction(s)}
                 disabled={disabled}
-                style={{
-                  padding: '0.3rem 0.6rem', fontSize: '0.85rem', cursor: 'pointer',
-                  background: '#e3f2fd', border: '1px solid #90caf9', borderRadius: 4,
-                }}
               >
                 {s}
               </button>
@@ -37,21 +34,21 @@ export function ActionInput({ suggestions, onSend, disabled }: Props) {
           </div>
         </div>
       )}
-      <div style={{ display: 'flex', gap: '0.5rem' }}>
+      <div className="action-row">
         <input
+          className="input"
           value={action}
           onChange={e => setAction(e.target.value)}
           onKeyDown={e => e.key === 'Enter' && handleSubmit()}
           disabled={disabled}
-          placeholder="Type your action..."
-          style={{ flex: 1, padding: '0.5rem', borderRadius: 4, border: '1px solid #ccc' }}
+          placeholder="Type your action&hellip;"
         />
         <button
+          className="btn btn-primary"
           onClick={handleSubmit}
           disabled={disabled || !action.trim()}
-          style={{ padding: '0.5rem 1rem', cursor: 'pointer' }}
         >
-          {disabled ? '...' : 'Send'}
+          {disabled ? <span className="spinner spinner-sm" /> : 'Send'}
         </button>
       </div>
     </div>

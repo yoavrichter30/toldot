@@ -1,56 +1,75 @@
 import { useEffect, useState } from 'react';
 import { useGame } from '../context/GameContext';
 import { listEras, createSession, EraMeta } from '../api/game';
+import { ErrorBanner, LoadingIndicator, EmptyState } from './Status';
 
 export function EraSelector() {
   const { dispatch } = useGame();
   const [eras, setEras] = useState<EraMeta[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [creating, setCreating] = useState(false);
 
   useEffect(() => {
+    let cancelled = false;
     listEras()
-      .then(setEras)
-      .catch(() => setEras([]))
-      .finally(() => setLoading(false));
+      .then(eras => {
+        if (!cancelled) setEras(eras);
+      })
+      .catch(() => {
+        if (!cancelled) setError('Could not load eras. Make sure the server is running.');
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const handleSelect = async (era: EraMeta) => {
-    setLoading(true);
+    if (creating) return;
+    setCreating(true);
+    setError(null);
     try {
       const result = await createSession(era.id);
       dispatch({ type: 'NEW_SESSION', sessionId: result.session.id, eraId: era.id });
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Failed to create session';
-      dispatch({ type: 'SET_ERROR', error: message });
+      setError(message);
+    } finally {
+      setCreating(false);
     }
   };
 
-  if (loading) return <div>Loading eras...</div>;
-
   return (
-    <div style={{ padding: '2rem', maxWidth: 600, margin: '0 auto' }}>
-      <h2>Choose an Era</h2>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '1rem' }}>
-        {eras.map(era => (
-          <button
-            key={era.id}
-            onClick={() => handleSelect(era)}
-            style={{
-              padding: '1rem',
-              textAlign: 'left',
-              cursor: 'pointer',
-              border: '1px solid #ccc',
-              borderRadius: 8,
-              background: '#f9f9f9',
-            }}
-          >
-            <strong>{era.title}</strong>
-            <div style={{ fontSize: '0.9rem', color: '#666' }}>
-              {era.startDate} — {era.endDate} | {era.maxTurns} turns
-            </div>
-          </button>
-        ))}
-      </div>
+    <div className="page">
+      <button className="btn btn-ghost" onClick={() => dispatch({ type: 'SET_SCREEN', screen: 'home' })}>
+        &larr; Back
+      </button>
+      <h1>Choose an Era</h1>
+      {error && <ErrorBanner message={error} onDismiss={() => setError(null)} />}
+      {loading ? (
+        <LoadingIndicator label="Loading eras…" />
+      ) : eras.length === 0 ? (
+        <EmptyState message="No eras available." />
+      ) : (
+        <div className="era-list">
+          {eras.map(era => (
+            <button
+              key={era.id}
+              className="card era-card"
+              onClick={() => handleSelect(era)}
+              disabled={creating}
+            >
+              <span className="era-title">{era.title}</span>
+              <span className="era-meta">
+                {era.startDate} — {era.endDate} · {era.maxTurns} turns
+              </span>
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

@@ -5,14 +5,18 @@ interface Props {
 
 export function DMNarrative({ narration, historicalNotes }: Props) {
   return (
-    <div style={{ background: '#f5f0e8', padding: '1.5rem', borderRadius: 8, marginBottom: '1rem' }}>
-      <div style={{ whiteSpace: 'pre-wrap', lineHeight: 1.6 }}>{narration}</div>
+    <div className="card narrative-box">
+      {narration ? (
+        <div className="narration-text">{narration}</div>
+      ) : (
+        <div className="empty-state">The story begins after your first action.</div>
+      )}
       {historicalNotes.length > 0 && (
-        <details style={{ marginTop: '1rem' }}>
-          <summary style={{ cursor: 'pointer', color: '#666', fontWeight: 'bold' }}>Historical Notes</summary>
-          <ul style={{ marginTop: '0.5rem' }}>
+        <details className="notes">
+          <summary>Historical Notes</summary>
+          <ul>
             {historicalNotes.map((note, i) => (
-              <li key={i} style={{ marginBottom: '0.3rem', color: '#555' }}>{note}</li>
+              <li key={i}>{note}</li>
             ))}
           </ul>
         </details>

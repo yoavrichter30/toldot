@@ -1,53 +1,84 @@
 import { useGame } from '../context/GameContext';
 import { useEffect, useState } from 'react';
 import { listSessions, getSession, SessionMeta } from '../api/game';
+import { ErrorBanner, LoadingIndicator, EmptyState } from './Status';
 
 export function HomeScreen() {
   const { dispatch } = useGame();
   const [sessions, setSessions] = useState<SessionMeta[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [continuing, setContinuing] = useState<string | null>(null);
 
   useEffect(() => {
-    listSessions().then(setSessions).catch(() => {});
+    let cancelled = false;
+    listSessions()
+      .then(sessions => {
+        if (!cancelled) setSessions(sessions);
+      })
+      .catch(() => {
+        if (!cancelled) setError('Could not load saved games. Make sure the server is running.');
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const handleContinue = async (meta: SessionMeta) => {
+    setContinuing(meta.id);
+    setError(null);
     try {
-      const data = await getSession(meta.id);
+      const data = await getSession(meta.id as string);
       dispatch({ type: 'LOAD_SESSION', session: data.session });
     } catch {
-      // silently ignore — session may have been deleted
+      setError('Could not load that session. It may have been deleted.');
+    } finally {
+      setContinuing(null);
     }
   };
 
   return (
-    <div style={{ padding: '2rem', maxWidth: 600, margin: '0 auto', textAlign: 'center' }}>
+    <div className="home">
       <h1>Toldot</h1>
-      <p style={{ color: '#666', marginBottom: '2rem' }}>
-        An educational game through the eras of the Yishuv
-      </p>
+      <p className="tagline">An educational game through the eras of the Yishuv</p>
+
       <button
+        className="btn btn-primary btn-lg"
         onClick={() => dispatch({ type: 'SET_SCREEN', screen: 'new-game' })}
-        style={{ padding: '0.75rem 1.5rem', fontSize: '1.1rem', cursor: 'pointer' }}
       >
         New Game
       </button>
-      {sessions.length > 0 && (
-        <div style={{ marginTop: '2rem' }}>
-          <h3>Continue Game</h3>
-          <ul style={{ listStyle: 'none', padding: 0 }}>
+
+      <section className="home-sessions">
+        <h2>Continue Game</h2>
+        {error && <ErrorBanner message={error} onDismiss={() => setError(null)} />}
+        {loading ? (
+          <LoadingIndicator label="Loading saved games…" />
+        ) : sessions.length === 0 ? (
+          <EmptyState message="No saved games yet. Start a new game to begin." />
+        ) : (
+          <ul className="session-list">
             {sessions.map(s => (
-              <li key={s.id} style={{ margin: '0.5rem 0' }}>
+              <li key={s.id}>
                 <button
+                  className="session-item"
                   onClick={() => handleContinue(s)}
-                  style={{ cursor: 'pointer' }}
+                  disabled={continuing === s.id}
                 >
-                  {s.eraId} — Turn {s.currentTurn} ({s.status})
+                  <span className="session-era">{s.eraId}</span>
+                  <span className="session-meta">
+                    Turn {s.currentTurn} · {s.status}
+                  </span>
+                  {continuing === s.id && <span className="spinner spinner-sm" aria-hidden="true" />}
                 </button>
               </li>
             ))}
           </ul>
-        </div>
-      )}
+        )}
+      </section>
     </div>
   );
 }

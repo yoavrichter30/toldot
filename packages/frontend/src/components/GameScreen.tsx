@@ -6,11 +6,14 @@ import { ResourcePanel } from './ResourcePanel';
 import { ActionInput } from './ActionInput';
 import { EventCard } from './EventCard';
 import { GameOverScreen } from './GameOverScreen';
+import { ErrorBanner, LoadingIndicator } from './Status';
+import { JournalView } from './JournalView';
 
 export function GameScreen() {
   const { state, dispatch } = useGame();
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [events, setEvents] = useState<SpawnedEvent[]>([]);
+  const [showJournal, setShowJournal] = useState(false);
   const openingStarted = useRef(false);
 
   const handleSend = async (action: string) => {
@@ -19,7 +22,9 @@ export function GameScreen() {
     try {
       const result = await processTurn(state.sessionId, action);
       dispatch({ type: 'SET_TURN', data: result });
-      setSuggestions(result.historicalNotes.length > 0 ? ['What would you like to know more about?'] : []);
+      setSuggestions(
+        result.historicalNotes.length > 0 ? ['What would you like to know more about?'] : [],
+      );
       setEvents(result.events || []);
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Failed to process turn';
@@ -28,7 +33,6 @@ export function GameScreen() {
   };
 
   const handleEventChoice = (eventId: string, choiceKey: string) => {
-    // Record the choice by removing the resolved event
     setEvents(prev => prev.filter(ev => ev.id !== eventId));
     console.log(`Event ${eventId} resolved with choice: ${choiceKey}`);
   };
@@ -37,52 +41,71 @@ export function GameScreen() {
     if (openingStarted.current) return;
     if (state.sessionId && state.turn === 0) {
       openingStarted.current = true;
-      getSession(state.sessionId).then(data => {
-        if (data.session) {
-          // Generate initial DM vignette
-          handleSend('The committee begins its work.');
-        }
-      }).catch(() => {
-        openingStarted.current = false;
-      });
+      getSession(state.sessionId)
+        .then(data => {
+          if (data.session) {
+            handleSend('The committee begins its work.');
+          }
+        })
+        .catch(() => {
+          openingStarted.current = false;
+        });
     }
-  }, [state.sessionId, state.turn, handleSend]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.sessionId, state.turn]);
 
   if (state.gameOver) return <GameOverScreen />;
 
   return (
-    <div style={{ padding: '1rem', maxWidth: 900, margin: '0 auto' }}>
-      {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-        <h2 style={{ margin: 0 }}>Toldot</h2>
-        <div style={{ color: '#666', fontSize: '0.9rem' }}>
-          Turn {state.turn}/{state.maxTurns} | {state.date}
+    <div className="game">
+      <header className="game-header">
+        <h2>Toldot</h2>
+        <div className="turn-info">
+          <button className="btn btn-ghost" onClick={() => setShowJournal(true)}>
+            Journal
+          </button>
+          &nbsp;
+          Turn {state.turn}/{state.maxTurns} &middot; {state.date}
         </div>
-      </div>
+      </header>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '1rem' }}>
-        {/* Left: narrative + actions */}
-        <div>
+      {showJournal && <JournalView onClose={() => setShowJournal(false)} />}
+
+      {state.error && (
+        <ErrorBanner
+          message={state.error}
+          onDismiss={() => dispatch({ type: 'SET_ERROR', error: null })}
+        />
+      )}
+
+      <div className="game-layout">
+        <main className="game-main">
           <DMNarrative narration={state.narration} historicalNotes={state.historicalNotes} />
           {events.map((ev, i) => (
             <EventCard key={ev?.id ?? i} event={ev} onChoice={handleEventChoice} />
           ))}
-          <div style={{ marginTop: '1rem' }}>
-            <ActionInput suggestions={suggestions} onSend={handleSend} disabled={state.loading} />
+          <div className="action-area">
+            <ActionInput
+              suggestions={suggestions}
+              onSend={handleSend}
+              disabled={state.loading}
+            />
+            {state.loading && <LoadingIndicator label="The DM is thinking\u2026" />}
           </div>
-          {state.loading && <div style={{ marginTop: '0.5rem', color: '#666' }}>The DM is thinking...</div>}
-          {state.error && <div style={{ marginTop: '0.5rem', color: '#f44336' }}>{state.error}</div>}
-        </div>
+        </main>
 
-        {/* Right: resources */}
-        {state.state && (
-          <div>
+        <aside className="game-side">
+          {state.state ? (
             <ResourcePanel
               resources={state.state.resources}
               foundationTracks={state.state.foundationTracks}
             />
-          </div>
-        )}
+          ) : (
+            <div className="card skeleton-panel">
+              Resources will appear after the first turn.
+            </div>
+          )}
+        </aside>
       </div>
     </div>
   );
