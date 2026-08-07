@@ -17,23 +17,27 @@ export class DMOrchestratorService {
     private validationEngine: ValidationEngineService,
   ) {}
 
-  async processTurn(action: string, session: Session): Promise<TurnResult> {
+async processTurn(action: string, session: Session): Promise<TurnResult> {
     const era = this.eraService.loadEra(session.eraId);
     const prompt = this.buildPrompt(era, session.state, action);
     let dmResponse: DMResponse;
 
-    try {
-      dmResponse = await this.callDM(prompt, era.meta.model);
-    } catch (err) {
-      this.logger.error(`DM call failed: ${err}`);
-      // Fallback: neutral turn
-      dmResponse = {
-        narration: 'The season passes without incident. The committee continues its work.',
-        proposed_effects: [],
-        spawned_events: [],
-        historical_notes: [],
-        dm_questions: ['What would you like to do next?'],
-      };
+    if (process.env.MOCK_OLLAMA === 'true') {
+      dmResponse = this.mockDMResponse();
+    } else {
+      try {
+        dmResponse = await this.callDM(prompt, era.meta.model);
+      } catch (err) {
+        this.logger.error(`DM call failed: ${err}`);
+        // Fallback: neutral turn
+        dmResponse = {
+          narration: "The season passes without incident. The committee continues its work.",
+          proposed_effects: [],
+          spawned_events: [],
+          historical_notes: [],
+          dm_questions: ["What would you like to do next?"],
+        };
+      }
     }
 
     // Validate effects
@@ -194,5 +198,23 @@ export class DMOrchestratorService {
     const d = new Date(currentDate);
     d.setMonth(d.getMonth() + 1);
     return d.toISOString().split('T')[0];
+  }
+
+  private mockDMResponse(): DMResponse {
+    return {
+      narration: "The committee reviews the situation. Winter has passed, and the settlements are holding steady. The malaria season is approaching, and additional funds for drainage would be wise.",
+      proposed_effects: [
+        { target: 'funds', delta: -20, reason: 'Regular operating expenses' },
+        { target: 'public_trust', delta: 2, reason: 'Steady leadership' },
+        { target: 'location.health', id: 'petah_tikva', delta: -3, reason: 'Seasonal malaria risk' },
+      ],
+      spawned_events: [],
+      historical_notes: ['Malaria was a persistent threat in the swampy areas of Petah Tikva and Hadera during the early 1900s. Drainage projects were a major focus of the pre-WWI Yishuv.'],
+      dm_questions: [
+        'Allocate funds to malaria drainage in the affected settlements',
+        'Send a delegation to request Ottoman permits for new construction',
+        'Focus on expanding the existing housing stock',
+      ],
+    };
   }
 }

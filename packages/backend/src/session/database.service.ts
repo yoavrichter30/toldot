@@ -1,15 +1,34 @@
-import { Injectable, OnModuleInit } from '@nestjs/common';
+import { Injectable, OnModuleInit, Inject, Optional } from '@nestjs/common';
 import Database from 'better-sqlite3';
 import * as path from 'path';
 import * as fs from 'fs';
+
+export const DB_PATH_TOKEN = 'DATABASE_PATH';
 
 @Injectable()
 export class DatabaseService implements OnModuleInit {
   private db!: Database.Database;
   private readonly dbPath: string;
 
-  constructor(dbPath?: string) {
-    this.dbPath = dbPath ?? path.resolve(__dirname, '..', '..', '..', '..', 'data', 'toldot.db');
+  constructor(@Optional() @Inject(DB_PATH_TOKEN) dbPath?: string) {
+    this.dbPath = dbPath ?? this.resolveDefaultDbPath();
+  }
+
+  private resolveDefaultDbPath(): string {
+    const repoRoot = this.findRepoRoot();
+    return path.join(repoRoot, 'data', 'toldot.db');
+  }
+
+  /** Walk up from __dirname to find the repo root (where `eras/` lives). */
+  private findRepoRoot(): string {
+    let dir = path.resolve(__dirname);
+    while (dir !== path.parse(dir).root) {
+      const candidate = path.join(dir, 'era.yaml');
+      // eras/ contains era.yaml, so checking for eras/ presence is symmetric
+      if (fs.existsSync(path.join(dir, 'eras'))) return dir;
+      dir = path.dirname(dir);
+    }
+    return dir;
   }
 
   onModuleInit() {

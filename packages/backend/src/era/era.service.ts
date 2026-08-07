@@ -10,7 +10,19 @@ export class EraService {
   private readonly erasDir: string;
 
   constructor(private readonly validator: EraValidatorService) {
-    this.erasDir = path.resolve(__dirname, '..', '..', '..', '..', 'eras');
+    this.erasDir = this.findErasDir();
+  }
+
+  /** Locate the repo-root `eras/` directory by walking up from __dirname
+   *  (works both from compiled `dist/src/era` and from `src/era` under ts-jest). */
+  private findErasDir(): string {
+    let dir = path.resolve(__dirname);
+    while (dir !== path.parse(dir).root) {
+      const candidate = path.join(dir, 'eras');
+      if (fs.existsSync(candidate)) return candidate;
+      dir = path.dirname(dir);
+    }
+    return path.join(dir, 'eras');
   }
 
   /** Convert a snake_case string to camelCase. */
