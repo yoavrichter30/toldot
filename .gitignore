@@ -15,5 +15,8 @@ dist/
 # Database files
 *.sqlite
 
+# TypeScript build artifacts
+*.tsbuildinfo
+
 # Environment
 .env
