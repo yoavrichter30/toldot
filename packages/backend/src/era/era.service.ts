@@ -10,7 +10,7 @@ export class EraService {
   private readonly erasDir: string;
 
   constructor(private readonly validator: EraValidatorService) {
-    this.erasDir = path.resolve(process.cwd(), '..', '..', 'eras');
+    this.erasDir = path.resolve(__dirname, '..', '..', '..', '..', 'eras');
   }
 
   /** Convert a snake_case string to camelCase. */
