@@ -1,0 +1,146 @@
+{
+  "locations": [
+    {
+      "id": "jaffa",
+      "name": "Jaffa",
+      "type": "port_city",
+      "founded": 0,
+      "initial_housing": 80,
+      "initial_water": 80,
+      "initial_health": 60,
+      "population_capacity": 5000
+    },
+    {
+      "id": "petah_tikva",
+      "name": "Petah Tikva",
+      "type": "moshava",
+      "founded": 1878,
+      "initial_housing": 50,
+      "initial_water": 30,
+      "initial_health": 35,
+      "population_capacity": 800
+    },
+    {
+      "id": "rishon_lezion",
+      "name": "Rishon LeZion",
+      "type": "moshava",
+      "founded": 1882,
+      "initial_housing": 55,
+      "initial_water": 40,
+      "initial_health": 40,
+      "population_capacity": 700
+    },
+    {
+      "id": "rehovot",
+      "name": "Rehovot",
+      "type": "moshava",
+      "founded": 1890,
+      "initial_housing": 45,
+      "initial_water": 35,
+      "initial_health": 40,
+      "population_capacity": 600
+    },
+    {
+      "id": "zikhron_yaakov",
+      "name": "Zikhron Ya'akov",
+      "type": "moshava",
+      "founded": 1882,
+      "initial_housing": 50,
+      "initial_water": 35,
+      "initial_health": 40,
+      "population_capacity": 600
+    },
+    {
+      "id": "hadera",
+      "name": "Hadera",
+      "type": "moshava",
+      "founded": 1891,
+      "initial_housing": 30,
+      "initial_water": 15,
+      "initial_health": 20,
+      "population_capacity": 400
+    },
+    {
+      "id": "sejera",
+      "name": "Sejera (Ilaniya)",
+      "type": "training_farm",
+      "founded": 1899,
+      "initial_housing": 25,
+      "initial_water": 30,
+      "initial_health": 35,
+      "population_capacity": 200
+    },
+    {
+      "id": "metulla",
+      "name": "Metulla",
+      "type": "moshava",
+      "founded": 1896,
+      "initial_housing": 25,
+      "initial_water": 25,
+      "initial_health": 30,
+      "population_capacity": 300
+    },
+    {
+      "id": "kinneret_farm",
+      "name": "Kinneret Farm",
+      "type": "training_farm",
+      "founded": 1908,
+      "initial_housing": 5,
+      "initial_water": 10,
+      "initial_health": 20,
+      "population_capacity": 150
+    },
+    {
+      "id": "degamia",
+      "name": "Degania",
+      "type": "training_farm",
+      "founded": 1909,
+      "initial_housing": 0,
+      "initial_water": 0,
+      "initial_health": 0,
+      "population_capacity": 100
+    }
+  ],
+  "resources": {
+    "funds": 500,
+    "people": 150,
+    "public_trust": 55,
+    "ottoman_tolerance": 50
+  },
+  "foundation_tracks": {
+    "settlement_viability": 15,
+    "economic_independence": 10,
+    "hebrew_public_life": 10,
+    "self_organization": 10
+  },
+  "cohort_templates": [
+    {
+      "id": "russian_pioneers",
+      "name": "Russian Jewish pioneers",
+      "size": 25,
+      "skills": ["farming", "manual_labor", "ideology"],
+      "preferred_work": "farming"
+    },
+    {
+      "id": "yemenite_families",
+      "name": "Yemenite Jewish families",
+      "size": 30,
+      "skills": ["manual_labor", "construction", "craftsmanship"],
+      "preferred_work": "construction"
+    },
+    {
+      "id": "urban_professionals",
+      "name": "Urban professionals and artisans",
+      "size": 15,
+      "skills": ["teaching", "medicine", "craftsmanship"],
+      "preferred_work": "teaching"
+    },
+    {
+      "id": "poalei_zion_workers",
+      "name": "Poalei Zion workers",
+      "size": 20,
+      "skills": ["manual_labor", "organization", "ideology"],
+      "preferred_work": "farming"
+    }
+  ]
+}
