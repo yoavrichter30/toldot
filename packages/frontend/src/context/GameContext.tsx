@@ -10,6 +10,7 @@ interface GameState {
   date: string;
   narration: string;
   historicalNotes: string[];
+  journalNotes: string[];
   events: SpawnedEvent[];
   state: TurnResponse['state'] | null;
   gameOver: boolean;
@@ -35,6 +36,7 @@ const initialState: GameState = {
   date: '',
   narration: '',
   historicalNotes: [],
+  journalNotes: [],
   events: [],
   state: null,
   gameOver: false,
@@ -48,7 +50,7 @@ function gameReducer(state: GameState, action: GameAction): GameState {
     case 'SET_SCREEN':
       return { ...state, screen: action.screen, error: null };
     case 'NEW_SESSION':
-      return { ...state, sessionId: action.sessionId, eraId: action.eraId, screen: 'playing', turn: 0, gameOver: false, outcome: undefined };
+      return { ...state, sessionId: action.sessionId, eraId: action.eraId, screen: 'playing', turn: 0, gameOver: false, outcome: undefined, journalNotes: [] };
     case 'SET_TURN':
       return {
         ...state,
@@ -57,6 +59,7 @@ function gameReducer(state: GameState, action: GameAction): GameState {
         date: action.data.date,
         narration: action.data.narration,
         historicalNotes: action.data.historicalNotes,
+        journalNotes: [...state.journalNotes, ...action.data.historicalNotes],
         events: action.data.events,
         state: action.data.state,
         gameOver: action.data.gameOver,
@@ -77,6 +80,7 @@ function gameReducer(state: GameState, action: GameAction): GameState {
         date: session.date,
         state: session.state,
         events: [],
+        journalNotes: [],
         gameOver: finished,
         outcome: finished ? session.status : undefined,
         loading: false,
