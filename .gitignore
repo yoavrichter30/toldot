@@ -7,3 +7,13 @@
 
 # Worktree directories
 .worktrees/
+
+# Dependencies and build output
+node_modules/
+dist/
+
+# Database files
+*.sqlite
+
+# Environment
+.env
