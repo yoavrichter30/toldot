@@ -1,5 +1,3 @@
-import { EraConfig } from '../era/era.types';
-
 export interface GameState {
   date: string;
   turn: number;

@@ -11,7 +11,13 @@ describe('SessionService', () => {
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [EraModule],
-      providers: [SessionService, DatabaseService],
+      providers: [
+        SessionService,
+        {
+          provide: DatabaseService,
+          useFactory: () => new DatabaseService(':memory:'),
+        },
+      ],
     }).compile();
     await module.init();
     service = module.get<SessionService>(SessionService);
@@ -57,6 +63,13 @@ describe('SessionService', () => {
       createdAt: new Date().toISOString(),
     };
     service.logTurn(turn);
-    // verify no error
+    const row = dbService.database
+      .prepare('SELECT session_id, turn_number, player_action, dm_narration FROM turn_log WHERE session_id = ?')
+      .get(session.id) as Record<string, unknown>;
+    expect(row).toBeDefined();
+    expect(row.session_id).toBe(session.id);
+    expect(row.turn_number).toBe(1);
+    expect(row.player_action).toBe('Build housing in Petah Tikva');
+    expect(row.dm_narration).toBe('The settlers begin building...');
   });
 });

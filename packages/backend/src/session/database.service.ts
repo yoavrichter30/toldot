@@ -6,12 +6,20 @@ import * as fs from 'fs';
 @Injectable()
 export class DatabaseService implements OnModuleInit {
   private db!: Database.Database;
+  private readonly dbPath: string;
+
+  constructor(dbPath?: string) {
+    this.dbPath = dbPath ?? path.resolve(__dirname, '..', '..', '..', '..', 'data', 'toldot.db');
+  }
 
   onModuleInit() {
-    const dbDir = path.resolve(process.cwd(), '..', '..', 'data');
-    if (!fs.existsSync(dbDir)) fs.mkdirSync(dbDir, { recursive: true });
-    this.db = new Database(path.join(dbDir, 'toldot.db'));
+    if (this.dbPath !== ':memory:') {
+      const dbDir = path.dirname(this.dbPath);
+      if (!fs.existsSync(dbDir)) fs.mkdirSync(dbDir, { recursive: true });
+    }
+    this.db = new Database(this.dbPath);
     this.db.pragma('journal_mode = WAL');
+    this.db.pragma('foreign_keys = ON');
     this.migrate();
   }
 
