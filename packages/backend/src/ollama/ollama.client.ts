@@ -43,8 +43,17 @@ export class OllamaClient {
   }
 
   async listModels(): Promise<ModelInfo[]> {
-    const response = await fetch(`${this.baseUrl}/api/tags`);
-    const data = await response.json();
-    return data.models || [];
+    try {
+      const response = await fetch(`${this.baseUrl}/api/tags`);
+      if (!response.ok) {
+        this.logger.error(`Ollama tags error: ${response.status}`);
+        return [];
+      }
+      const data = await response.json();
+      return data.models || [];
+    } catch (err) {
+      this.logger.error('Failed to list models', err);
+      return [];
+    }
   }
 }
