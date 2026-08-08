@@ -508,6 +508,87 @@ p {
   text-align: center;
 }
 
+/* Cohort panel */
+.cohort-panel h4 {
+  margin: 0 0 0.75rem;
+}
+
+.cohort-entry {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.cohort-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.25rem;
+}
+
+.cohort-meta {
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin-bottom: 0.5rem;
+}
+
+.cohort-status-badge {
+  display: inline-block;
+  padding: 0.1rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #fff;
+  text-transform: capitalize;
+}
+
+.cohort-bar {
+  margin-bottom: 0.4rem;
+}
+
+.cohort-bar-rows {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  margin-bottom: 0.15rem;
+}
+
+.cohort-bar-rows span:first-child {
+  color: var(--muted);
+}
+
+.cohort-bar-track {
+  height: 6px;
+  background: var(--border);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.cohort-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+.cohort-skills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin-top: 0.4rem;
+}
+
+.cohort-skill-tag {
+  display: inline-block;
+  padding: 0.1rem 0.4rem;
+  font-size: 0.7rem;
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
 /* Game over */
 .game-over {
   max-width: 520px;
@@ -528,4 +609,130 @@ p {
 
 .game-over .turn-line {
   margin-bottom: 1.5rem;
+}
+
+/* Project panel */
+.project-panel h4 {
+  margin: 0 0 0.75rem;
+}
+
+.project-group {
+  margin-bottom: 0.75rem;
+}
+
+.project-group:last-child {
+  margin-bottom: 0;
+}
+
+.project-group-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--muted);
+  margin: 0 0 0.4rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.project-entry {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.65rem 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.project-entry:last-child {
+  margin-bottom: 0;
+}
+
+.project-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.35rem;
+}
+
+.project-header strong {
+  font-size: 0.9rem;
+}
+
+.project-description {
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin-bottom: 0.4rem;
+  line-height: 1.4;
+}
+
+.project-status-badge {
+  display: inline-block;
+  padding: 0.1rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #fff;
+  text-transform: capitalize;
+}
+
+.project-bar {
+  margin-bottom: 0.35rem;
+}
+
+.project-bar-rows {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.78rem;
+  margin-bottom: 0.15rem;
+}
+
+.project-bar-rows span:first-child {
+  color: var(--muted);
+}
+
+.project-bar-track {
+  height: 6px;
+  background: var(--border);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.project-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  background: var(--accent);
+  transition: width 0.3s ease;
+}
+
+.project-bar-fill.progress-animated {
+  background: linear-gradient(90deg, var(--accent) 0%, #c9a45a 50%, var(--accent) 100%);
+  background-size: 200% 100%;
+  animation: progress-shimmer 1.8s ease-in-out infinite;
+}
+
+@keyframes progress-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.project-start-btn {
+  display: inline-block;
+  padding: 0.25rem 0.7rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #fff;
+  background: var(--accent);
+  border: none;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.project-start-btn:hover {
+  background: var(--accent-strong);
+}
+
+.project-complete-icon {
+  display: inline-block;
+  color: #4caf50;
+  font-size: 1.2rem;
+  font-weight: 700;
 }

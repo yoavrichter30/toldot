@@ -1,13 +1,20 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 interface Props {
   suggestions: string[];
   onSend: (action: string) => void;
   disabled: boolean;
+  externalAction?: string;
 }
 
-export function ActionInput({ suggestions, onSend, disabled }: Props) {
+export function ActionInput({ suggestions, onSend, disabled, externalAction }: Props) {
   const [action, setAction] = useState('');
+
+  useEffect(() => {
+    if (externalAction) {
+      setAction(externalAction);
+    }
+  }, [externalAction]);
 
   const handleSubmit = () => {
     if (!action.trim() || disabled) return;

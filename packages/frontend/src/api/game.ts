@@ -43,12 +43,34 @@ export interface FoundationTracks {
   selfOrganization: number;
 }
 
+export interface CohortStateView {
+  id: string;
+  templateId: string;
+  name: string;
+  size: number;
+  status: 'queued' | 'arrived' | 'assigned' | 'departed';
+  assignedLocationId?: string;
+  health: number;
+  retention: number;
+  skills: string[];
+}
+
+export interface ProjectStateView {
+  id: string;
+  locationId: string;
+  name: string;
+  description: string;
+  progress: number;
+  requiredDays: number;
+  status: 'available' | 'active' | 'completed';
+}
+
 export interface GameStateView {
   resources: GameResources;
   foundationTracks: FoundationTracks;
   locations: unknown[];
-  cohorts: unknown[];
-  projects: unknown[];
+  cohorts: CohortStateView[];
+  projects: ProjectStateView[];
 }
 
 export type Grade = 'gold' | 'silver' | 'bronze' | 'loss';

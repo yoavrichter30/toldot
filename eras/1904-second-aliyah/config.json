@@ -113,6 +113,32 @@
     "hebrew_public_life": 10,
     "self_organization": 10
   },
+  "projects": [
+    {
+      "id": "major_ahuzat_bayit",
+      "name": "Ahuzat Bayit (Tel Aviv)",
+      "description": "Establish a new urban neighborhood on the sand dunes near Jaffa",
+      "required_days": 180,
+      "required_funds": 150,
+      "effects": { "hebrew_public_life": 20, "self_organization": 15 }
+    },
+    {
+      "id": "major_school",
+      "name": "Hebrew School",
+      "description": "Establish a Hebrew-language school",
+      "required_days": 90,
+      "required_funds": 60,
+      "effects": { "hebrew_public_life": 15 }
+    },
+    {
+      "id": "major_drainage",
+      "name": "Malaria Drainage",
+      "description": "Drain the swamps to reduce malaria",
+      "required_days": 120,
+      "required_funds": 80,
+      "effects": { "settlement_viability": 15, "locations": { "hadera": { "health": 30 }, "petah_tikva": { "health": 20 } } }
+    }
+  ],
   "cohort_templates": [
     {
       "id": "russian_pioneers",

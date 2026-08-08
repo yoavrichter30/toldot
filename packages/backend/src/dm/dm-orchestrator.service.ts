@@ -23,7 +23,7 @@ async processTurn(action: string, session: Session): Promise<TurnResult> {
     let dmResponse: DMResponse;
 
     if (process.env.MOCK_OLLAMA === 'true') {
-      dmResponse = this.mockDMResponse();
+      dmResponse = this.mockDMResponse(action, session.state);
     } else {
       try {
         dmResponse = await this.callDM(prompt, era.meta.model);
@@ -184,7 +184,16 @@ async processTurn(action: string, session: Session): Promise<TurnResult> {
         }
         case 'project.progress': {
           const project = newState.projects.find(p => p.id === eff.id);
-          if (project) project.progress = item.newValue;
+          if (project) {
+            project.progress = item.newValue;
+            if (project.status === 'available' && project.progress > 0) {
+              project.status = 'active';
+            }
+            if (project.progress >= project.requiredDays) {
+              project.progress = project.requiredDays;
+              project.status = 'completed';
+            }
+          }
           break;
         }
       }
@@ -253,17 +262,49 @@ async processTurn(action: string, session: Session): Promise<TurnResult> {
     return d.toISOString().split('T')[0];
   }
 
-  private mockDMResponse(): DMResponse {
+  private mockDMResponse(action: string, state: GameState): DMResponse {
+    // Check if the player is starting a project
+    const projectMatch = action.match(/^Start the (.+) project$/i);
+    const projectEffects: Array<{ target: string; id?: string; delta: number; reason: string }> = [];
+    let narration = '';
+
+    if (projectMatch) {
+      const projectName = projectMatch[1];
+      const project = state.projects.find(
+        p => p.name.toLowerCase() === projectName.toLowerCase() || p.id.toLowerCase() === projectName.toLowerCase(),
+      );
+      if (project && project.status === 'available') {
+        // Advance the project: set active and add progress
+        const dailyProgress = Math.min(30, project.requiredDays);
+        projectEffects.push(
+          { target: 'project.progress', id: project.id, delta: dailyProgress, reason: `Work continues on ${project.name}` },
+        );
+        narration = `The committee allocates resources to begin ${project.name}. Preliminary work has started — the settlement board reports ${Math.min(100, Math.round(dailyProgress / project.requiredDays * 100))}% complete after the first month of effort.`;
+      } else if (project && project.status === 'active') {
+        const dailyProgress = Math.min(30, project.requiredDays - project.progress);
+        projectEffects.push(
+          { target: 'project.progress', id: project.id, delta: dailyProgress, reason: `Continued work on ${project.name}` },
+        );
+        narration = `Work on ${project.name} continues. The engineers report steady progress.`;
+      } else {
+        narration = `The committee discusses ${projectName} but no such project is currently feasible.`;
+      }
+    }
+
     return {
-      narration: "The committee reviews the situation. Winter has passed, and the settlements are holding steady. The malaria season is approaching, and additional funds for drainage would be wise.",
-      proposed_effects: [
+      narration: narration || 'The committee reviews the situation. Winter has passed, and the settlements are holding steady. The malaria season is approaching, and additional funds for drainage would be wise.',
+      proposed_effects: projectEffects.length > 0 ? projectEffects : [
         { target: 'funds', delta: -20, reason: 'Regular operating expenses' },
         { target: 'public_trust', delta: 2, reason: 'Steady leadership' },
         { target: 'location.health', id: 'petah_tikva', delta: -3, reason: 'Seasonal malaria risk' },
       ],
       spawned_events: [],
-      historical_notes: ['Malaria was a persistent threat in the swampy areas of Petah Tikva and Hadera during the early 1900s. Drainage projects were a major focus of the pre-WWI Yishuv.'],
-      dm_questions: [
+      historical_notes: projectMatch ? [`${state.projects.find(p => p.name.toLowerCase() === projectMatch[1].toLowerCase())?.name || 'The project'} is underway — a significant undertaking for the Yishuv.`] : ['Malaria was a persistent threat in the swampy areas of Petah Tikva and Hadera during the early 1900s. Drainage projects were a major focus of the pre-WWI Yishuv.'],
+      dm_questions: projectEffects.length > 0 ? [
+        'What other work should the committee prioritize this month?',
+        'Allocate additional funds to speed up the project.',
+        'Send a delegation to request Ottoman permits for new construction.',
+      ] : [
         'Allocate funds to malaria drainage in the affected settlements',
         'Send a delegation to request Ottoman permits for new construction',
         'Focus on expanding the existing housing stock',

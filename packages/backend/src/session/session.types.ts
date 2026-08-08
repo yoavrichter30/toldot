@@ -48,6 +48,7 @@ export interface ProjectState {
   id: string;
   locationId: string;
   name: string;
+  description: string;
   progress: number;
   requiredDays: number;
   status: 'available' | 'active' | 'completed';

@@ -28,10 +28,33 @@ export class SessionService {
         populationCapacity: l.populationCapacity,
       })),
       cohorts: [],
-      projects: [],
+      projects: (era.config.projects || []).map(p => ({
+        id: p.id,
+        locationId: '',
+        name: p.name,
+        description: p.description,
+        progress: 0,
+        requiredDays: p.requiredDays,
+        status: 'available' as const,
+      })),
       events: [],
       losses: {},
     };
+
+    // Initialize first cohort from era templates
+    if (era.config.cohortTemplates.length > 0) {
+      const first = era.config.cohortTemplates[0];
+      state.cohorts.push({
+        id: 'coh_arrived_1',
+        templateId: first.id,
+        name: first.name,
+        size: first.size,
+        status: 'arrived',
+        health: 80,
+        retention: 70,
+        skills: first.skills,
+      });
+    }
 
     const session: Session = {
       id: `sess_${randomUUID().slice(0, 8)}`,

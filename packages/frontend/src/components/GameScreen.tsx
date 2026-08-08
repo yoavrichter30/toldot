@@ -3,6 +3,8 @@ import { useGame } from '../context/GameContext';
 import { processTurn, getSession, SpawnedEvent } from '../api/game';
 import { DMNarrative } from './DMNarrative';
 import { ResourcePanel } from './ResourcePanel';
+import { CohortPanel } from './CohortPanel';
+import { ProjectPanel } from './ProjectPanel';
 import { ActionInput } from './ActionInput';
 import { EventCard } from './EventCard';
 import { GameOverScreen } from './GameOverScreen';
@@ -14,10 +16,12 @@ export function GameScreen() {
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [events, setEvents] = useState<SpawnedEvent[]>([]);
   const [showJournal, setShowJournal] = useState(false);
+  const [projectActionText, setProjectActionText] = useState('');
   const openingStarted = useRef(false);
 
   const handleSend = async (action: string) => {
     if (!state.sessionId) return;
+    setProjectActionText('');
     dispatch({ type: 'SET_LOADING', loading: true });
     try {
       const result = await processTurn(state.sessionId, action);
@@ -89,6 +93,7 @@ export function GameScreen() {
               suggestions={suggestions}
               onSend={handleSend}
               disabled={state.loading}
+              externalAction={projectActionText}
             />
             {state.loading && <LoadingIndicator label="The DM is thinking\u2026" />}
           </div>
@@ -96,10 +101,17 @@ export function GameScreen() {
 
         <aside className="game-side">
           {state.state ? (
-            <ResourcePanel
-              resources={state.state.resources}
-              foundationTracks={state.state.foundationTracks}
-            />
+            <>
+              <ResourcePanel
+                resources={state.state.resources}
+                foundationTracks={state.state.foundationTracks}
+              />
+              <CohortPanel cohorts={state.state.cohorts} />
+              <ProjectPanel
+                projects={state.state.projects}
+                onStartProject={(name) => setProjectActionText(`Start the ${name} project`)}
+              />
+            </>
           ) : (
             <div className="card skeleton-panel">
               Resources will appear after the first turn.

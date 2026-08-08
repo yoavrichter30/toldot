@@ -22,6 +22,16 @@ export interface EraConfig {
     selfOrganization: number;
   };
   cohortTemplates: CohortTemplate[];
+  projects?: ProjectTemplate[];
+}
+
+export interface ProjectTemplate {
+  id: string;
+  name: string;
+  description: string;
+  requiredDays: number;
+  requiredFunds: number;
+  effects: Record<string, number | Record<string, number | Record<string, number>>>;
 }
 
 export interface LocationConfig {
