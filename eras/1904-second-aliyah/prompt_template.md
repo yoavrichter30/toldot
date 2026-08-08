@@ -39,6 +39,16 @@ self-sustaining Hebrew community.
   are represented as actors with their own interests.
 - Hebrew language and the Jewish calendar are part of everyday life.
 
+## Valid location IDs (use these in location.* effects)
+jaffa, petah_tikva, rishon_lezion, rehovot, zikhron_yaakov, hadera,
+sejera, metulla, kinneret_farm, degamia
+
+## Valid project IDs (use these in project.progress effects)
+major_ahuzat_bayit, major_school, major_drainage
+
+## Valid cohort IDs (use these in cohort.* effects)
+coh_arrived_1 (or any cohort ID visible in the game state)
+
 ## Output format
 You MUST respond in valid JSON with the following structure:
 {
