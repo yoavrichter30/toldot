@@ -854,19 +854,21 @@ p {
    ============================================================ */
 
 .game {
-  --bg: #1a1a2e;
-  --surface: #16213e;
-  --surface-alt: #1f2c52;
-  --text: #e0e0e0;
-  --muted: #9aa4b8;
-  --border: #2e3d63;
-  --accent: #c4a35a;
-  --accent-strong: #d4a73a;
-  --accent-soft: #3a3350;
-  --danger: #ef5350;
-  --danger-bg: #4a1620;
-  --danger-border: #8a2f3a;
-  --shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+  --bg: #1a1410;
+  --surface: #2a2218;
+  --surface-alt: #362e22;
+  --text: #e8ddd0;
+  --muted: #a89880;
+  --border: #4a3f30;
+  --accent: #d4a73a;
+  --accent-strong: #e0b84a;
+  --accent-soft: #3a3020;
+  --danger: #e06050;
+  --danger-bg: #3a1a10;
+  --danger-border: #6a3020;
+  --shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+  --card-bg: #2e251c;
+  --card-highlight: #3d3328;
 }
 
 .game {
@@ -893,6 +895,181 @@ p {
 
 .game-side {
   position: static;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  box-shadow: var(--shadow);
+}
+
+.card h4 {
+  color: var(--accent);
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 0.6rem;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0.4rem;
+}
+
+/* DM Narrative */
+.dm-narrative {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.25rem;
+  line-height: 1.65;
+  font-size: 0.95rem;
+}
+
+.dm-narrative details summary {
+  color: var(--accent);
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+/* Resource Panel */
+.resource-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.9rem;
+}
+
+.resource-panel .bar-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin-bottom: 0.15rem;
+}
+
+.resource-panel .bar-track {
+  height: 6px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 0.4rem;
+}
+
+.resource-panel .bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.4s ease;
+}
+
+/* Cohort panel */
+.cohort-panel .cohort-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.6rem 0.8rem;
+  margin-bottom: 0.4rem;
+}
+
+.cohort-card .cohort-name {
+  font-weight: 600;
+  color: var(--accent);
+  font-size: 0.85rem;
+}
+
+.cohort-card .cohort-status {
+  display: inline-block;
+  font-size: 0.7rem;
+  padding: 1px 6px;
+  border-radius: 3px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+/* Project panel */
+.project-panel .project-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.6rem 0.8rem;
+  margin-bottom: 0.4rem;
+}
+
+.project-card .project-name {
+  font-weight: 600;
+  color: var(--accent);
+  font-size: 0.85rem;
+}
+
+.project-card .project-bar {
+  height: 4px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-top: 0.3rem;
+}
+
+.project-card .project-bar-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 2px;
+  transition: width 0.4s ease;
+}
+
+/* Action input area */
+.action-input-area {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.9rem;
+}
+
+.action-input-area input {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 0.5rem 0.7rem;
+  border-radius: 5px;
+  width: 100%;
+  font-size: 0.9rem;
+}
+
+.action-input-area input::placeholder {
+  color: var(--muted);
+  opacity: 0.6;
+}
+
+/* Event card overlay */
+.event-card {
+  background: var(--card-highlight);
+  border: 1px solid var(--accent);
+  border-left: 3px solid var(--accent);
+  border-radius: 6px;
+  padding: 0.8rem 1rem;
+  margin: 0.5rem 0;
+}
+
+.event-card h4 {
+  color: var(--accent-strong);
+  border: none;
+  padding: 0;
+  margin-bottom: 0.3rem;
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+/* Location detail overlay */
+.location-detail {
+  position: absolute;
+  bottom: 1rem;
+  left: 1rem;
+  right: 1rem;
+  background: var(--surface);
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+  padding: 1rem;
+  z-index: 10;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.6);
 }
 
 @media (max-width: 720px) {
