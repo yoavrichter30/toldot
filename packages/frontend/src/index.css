@@ -878,7 +878,7 @@ p {
   --bg: #1a1410;
   --surface: #2a2218;
   --surface-alt: #362e22;
-  --text: #e8ddd0;
+  --text: #f0ece0;
   --muted: #a89880;
   --border: #4a3f30;
   --accent: #d4a73a;
@@ -924,6 +924,7 @@ p {
   border-radius: 8px;
   padding: 1rem;
   box-shadow: var(--shadow);
+  color: var(--text);
 }
 
 .card h4 {

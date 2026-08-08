@@ -17,7 +17,6 @@ interface MapPanelProps {
   activeLocationIds: string[];
 }
 
-// 900x1200 coordinates matching the SVG viewBox
 const PIN_COORDS: Record<string, [number, number]> = {
   metulla:        [720, 80],
   rosh_pinna:     [700, 290],
@@ -40,7 +39,6 @@ export function MapPanel({
   activeLocationIds,
 }: MapPanelProps) {
   const [hoveredId, setHoveredId] = useState<string | null>(null);
-  // Pan/zoom state: viewBox = [vx, vy, vw, vh]
   const [viewBox, setViewBox] = useState({ x: 0, y: 0, w: 900, h: 1200 });
   const [isPanning, setIsPanning] = useState(false);
   const panStart = useRef({ x: 0, y: 0, vx: 0, vy: 0 });
@@ -48,6 +46,18 @@ export function MapPanel({
 
   const selectedLoc = locations.find((l) => l.id === selectedLocationId);
   const showDetail = selectedLocationId && selectedLoc;
+
+  const clampViewBox = useCallback((vb: typeof viewBox) => {
+    // prevent zoom out beyond 100%
+    const maxW = 900, maxH = 1200;
+    const minW = 150, minH = 200;
+    const w = Math.max(minW, Math.min(maxW, vb.w));
+    const h = Math.max(minH, Math.min(maxH, vb.h));
+    // clamp pan so we stay within the map
+    const x = Math.max(0, Math.min(maxW - w, vb.x));
+    const y = Math.max(0, Math.min(maxH - h, vb.y));
+    return { x, y, w, h };
+  }, []);
 
   const handleWheel = useCallback((e: React.WheelEvent) => {
     e.preventDefault();
@@ -57,16 +67,16 @@ export function MapPanel({
     const rect = svg.getBoundingClientRect();
     const mx = ((e.clientX - rect.left) / rect.width) * viewBox.w + viewBox.x;
     const my = ((e.clientY - rect.top) / rect.height) * viewBox.h + viewBox.y;
-    const nw = Math.max(200, Math.min(1200, viewBox.w * factor));
-    const nh = Math.max(266, Math.min(1600, viewBox.h * factor));
+    const nw = viewBox.w * factor;
+    const nh = viewBox.h * factor;
     const nx = mx - (mx - viewBox.x) * (nw / viewBox.w);
     const ny = my - (my - viewBox.y) * (nh / viewBox.h);
-    setViewBox({ x: nx, y: ny, w: nw, h: nh });
-  }, [viewBox]);
+    setViewBox(clampViewBox({ x: nx, y: ny, w: nw, h: nh }));
+  }, [viewBox, clampViewBox]);
 
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
-    if (e.button === 1 || e.shiftKey) {
-      e.preventDefault();
+    // Left click starts panning (pin clicks use stopPropagation so they won't reach here)
+    if (e.button === 0) {
       setIsPanning(true);
       panStart.current = { x: e.clientX, y: e.clientY, vx: viewBox.x, vy: viewBox.y };
     }
@@ -79,10 +89,20 @@ export function MapPanel({
     const rect = svg.getBoundingClientRect();
     const dx = ((e.clientX - panStart.current.x) / rect.width) * viewBox.w;
     const dy = ((e.clientY - panStart.current.y) / rect.height) * viewBox.h;
-    setViewBox(prev => ({ ...prev, x: panStart.current.vx - dx, y: panStart.current.vy - dy }));
+    const nx = panStart.current.vx - dx;
+    const ny = panStart.current.vy - dy;
+    // Clamp to prevent dragging past map edges
+    const maxX = Math.max(0, viewBox.w);
+    const maxY = Math.max(0, viewBox.h);
+    setViewBox(prev => ({
+      ...prev,
+      x: Math.max(0, Math.min(900 - prev.w, nx)),
+      y: Math.max(0, Math.min(1200 - prev.h, ny)),
+    }));
   }, [isPanning, viewBox.w, viewBox.h]);
 
   const handleMouseUp = useCallback(() => setIsPanning(false), []);
+  const handleMouseLeave = useCallback(() => setIsPanning(false), []);
 
   return (
     <div className="map-panel">
@@ -97,7 +117,7 @@ export function MapPanel({
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
-        onMouseLeave={() => setIsPanning(false)}
+        onMouseLeave={handleMouseLeave}
         style={{ cursor: isPanning ? 'grabbing' : 'grab' }}
       >
         <defs>
@@ -109,7 +129,6 @@ export function MapPanel({
           </filter>
         </defs>
 
-        {/* The user's SVG map as embedded image */}
         <image href="/assets/map.svg" x={0} y={0} width={900} height={1200} preserveAspectRatio="xMidYMid meet" />
 
         {/* Title */}
@@ -124,6 +143,14 @@ export function MapPanel({
           <rect x={0} y={0} width={75} height={20} rx={3} fill="#2a2218" stroke="#4a3f30" strokeWidth={0.5} opacity={0.8} />
           <text x={37} y={14} textAnchor="middle" fontSize={9} fill="#a89880" fontFamily="'Helvetica',sans-serif">{Math.round(100 * 900 / viewBox.w)}%</text>
         </g>
+
+        {/* Pin coordinate debug toggle — comment out after tuning
+        {locations.map(loc => {
+          const c = PIN_COORDS[loc.id];
+          if (!c) return null;
+          return <text key={'d_'+loc.id} x={c[0]} y={c[1]-5} textAnchor="middle" fontSize={6} fill="rgba(255,0,0,0.6)" fontFamily="monospace">{loc.id}</text>;
+        })}
+        */}
 
         {/* Settlement pins */}
         {locations.map((loc) => {
@@ -162,14 +189,14 @@ export function MapPanel({
           );
         })}
 
-        {/* Map zoom/pan hint */}
+        {/* Help text hint */}
         <g transform={`translate(10, ${viewBox.y + 20})`}>
-          <rect x={0} y={0} width={140} height={18} rx={3} fill="#2a2218" opacity={0.6} />
-          <text x={70} y={13} textAnchor="middle" fontSize={8} fill="#a89880" fontFamily="'Helvetica',sans-serif">Scroll to zoom · Shift+drag to pan</text>
+          <rect x={0} y={0} width={160} height={18} rx={3} fill="#2a2218" opacity={0.6} />
+          <text x={80} y={13} textAnchor="middle" fontSize={8} fill="#a89880" fontFamily="'Helvetica',sans-serif">Drag to pan · Scroll to zoom</text>
         </g>
       </svg>
 
-      {/* Location detail info box */}
+      {/* Location detail */}
       {showDetail && (
         <div className="location-detail" style={{ position: 'absolute', bottom: '1rem', left: '1rem', right: '1rem', background: '#2a2218', border: '1px solid #d4a73a', borderRadius: 8, padding: '1rem', zIndex: 10, boxShadow: '0 4px 20px rgba(0,0,0,0.6)' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
