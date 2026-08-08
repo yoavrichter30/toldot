@@ -41,6 +41,7 @@ export function MapPanel({
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [viewBox, setViewBox] = useState({ x: 0, y: 0, w: 900, h: 1200 });
   const [isPanning, setIsPanning] = useState(false);
+  const [clickCoords, setClickCoords] = useState<string | null>(null);
   const panStart = useRef({ x: 0, y: 0, vx: 0, vy: 0 });
   const svgRef = useRef<SVGSVGElement>(null);
 
@@ -131,6 +132,24 @@ export function MapPanel({
 
         <image href="/assets/map.svg" x={0} y={0} width={900} height={1200} preserveAspectRatio="xMidYMid meet" />
 
+        {/* Coordinate picker overlay — click map to see x,y coordinates */}
+        <rect x={0} y={0} width={900} height={1200} fill="transparent" onClick={(e) => {
+          const rect = svgRef.current?.getBoundingClientRect();
+          if (!rect) return;
+          const x = (e.clientX - rect.left) / rect.width * viewBox.w + viewBox.x;
+          const y = (e.clientY - rect.top) / rect.height * viewBox.h + viewBox.y;
+          setClickCoords(`${Math.round(x)}, ${Math.round(y)}`);
+          setTimeout(() => setClickCoords(null), 5000);
+        }} style={{ cursor: isPanning ? 'grabbing' : 'crosshair' }} />
+
+        {/* Coord display */}
+        {clickCoords && (
+          <g transform={`translate(10, ${viewBox.y + viewBox.h - 40})`}>
+            <rect x={0} y={0} width={130} height={22} rx={3} fill="#2a2218" stroke="#d4a73a" strokeWidth={1} opacity={0.9} />
+            <text x={65} y={15} textAnchor="middle" fontSize={10} fill="#d4a73a" fontFamily="monospace">[{clickCoords}]</text>
+          </g>
+        )}
+
         {/* Title */}
         <g>
           <rect x={260} y={15} width={380} height={50} rx={6} fill="#f2e4c8" stroke="#c4a35a" strokeWidth={1} opacity={0.85} />
@@ -144,13 +163,20 @@ export function MapPanel({
           <text x={37} y={14} textAnchor="middle" fontSize={9} fill="#a89880" fontFamily="'Helvetica',sans-serif">{Math.round(100 * 900 / viewBox.w)}%</text>
         </g>
 
-        {/* Pin coordinate debug toggle — comment out after tuning
-        {locations.map(loc => {
+        {/* DEBUG: numbered pin labels — tell me coordinates where each should go */}
+        {locations.map((loc, idx) => {
           const c = PIN_COORDS[loc.id];
           if (!c) return null;
-          return <text key={'d_'+loc.id} x={c[0]} y={c[1]-5} textAnchor="middle" fontSize={6} fill="rgba(255,0,0,0.6)" fontFamily="monospace">{loc.id}</text>;
+          const num = idx + 1;
+          return (
+            <g key={'d_'+loc.id}>
+              <circle cx={c[0]} cy={c[1]} r={16} fill="rgba(255,50,50,0.7)" stroke="#fff" strokeWidth={2} />
+              <text x={c[0]} y={c[1]+1} textAnchor="middle" fontSize={13} fill="#fff" fontWeight="bold" fontFamily="monospace">{num}</text>
+              <text x={c[0]} y={c[1]+30} textAnchor="middle" fontSize={9} fill="#ff3333" fontWeight="bold" fontFamily="monospace" style={{textShadow:'0 0 3px rgba(255,255,255,0.8)'}}>{loc.id}</text>
+            </g>
+          );
         })}
-        */}
+        {/* END DEBUG */}
 
         {/* Settlement pins */}
         {locations.map((loc) => {
