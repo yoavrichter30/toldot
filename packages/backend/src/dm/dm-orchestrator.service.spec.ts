@@ -90,4 +90,62 @@ describe('DMOrchestratorService', () => {
     expect(result.narration).toBeDefined();
     expect(result.narration.length).toBeGreaterThan(0);
   });
+
+  it('should enrich spawned events from era event templates', async () => {
+    const ollama = module.get<OllamaClient>(OllamaClient);
+    ollama.chat = jest.fn().mockResolvedValue({
+      message: {
+        content: JSON.stringify({
+          narration: 'Test narration',
+          proposed_effects: [],
+          spawned_events: [
+            {
+              id: 'hapoel_hatzair_founded',
+              title: 'LLM title',
+              description: 'LLM description',
+              choices: [{ label: 'LLM label', key: 'llm_key' }],
+            },
+          ],
+          historical_notes: [],
+          dm_questions: [],
+        }),
+      },
+    });
+
+    const result = await service.processTurn('Test', mockSession);
+    expect(result.spawnedEvents).toHaveLength(1);
+    const event = result.spawnedEvents[0];
+    // Template data replaces the LLM version
+    expect(event.title).toBe("Hapoel Hatza'ir Founded");
+    expect(event.description).toContain('Hapoel Hatza');
+    expect(event.choices).toHaveLength(2);
+    expect(event.choices![0]).toMatchObject({ label: 'Support the labor movement with funds and resources', key: 'support_labor', effects: { funds: -50, public_trust: 10 } });
+  });
+
+  it('should keep the LLM version of a spawned event with no template match', async () => {
+    const ollama = module.get<OllamaClient>(OllamaClient);
+    ollama.chat = jest.fn().mockResolvedValue({
+      message: {
+        content: JSON.stringify({
+          narration: 'Test narration',
+          proposed_effects: [],
+          spawned_events: [
+            {
+              id: 'unknown_event',
+              title: 'LLM original title',
+              description: 'LLM original description',
+              choices: [{ label: 'LLM label', key: 'llm_key' }],
+            },
+          ],
+          historical_notes: [],
+          dm_questions: [],
+        }),
+      },
+    });
+
+    const result = await service.processTurn('Test', mockSession);
+    expect(result.spawnedEvents).toHaveLength(1);
+    expect(result.spawnedEvents[0].title).toBe('LLM original title');
+    expect(result.spawnedEvents[0].choices).toEqual([{ label: 'LLM label', key: 'llm_key' }]);
+  });
 });

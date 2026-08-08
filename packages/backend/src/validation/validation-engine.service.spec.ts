@@ -36,6 +36,7 @@ describe('ValidationEngineService', () => {
       },
       promptTemplate: '',
       groundingDocs: '',
+      events: [],
     };
   });
 

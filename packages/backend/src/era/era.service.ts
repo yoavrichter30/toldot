@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as yaml from 'js-yaml';
-import { Era, EraMeta, EraConfig } from './era.types';
+import { Era, EraMeta, EraConfig, EventTemplate } from './era.types';
 import { EraValidatorService } from './era-validator.service';
 
 @Injectable()
@@ -45,6 +45,18 @@ export class EraService {
     return obj as T;
   }
 
+  /** Deep-camelize an event template while preserving effect-target keys (snake_case, as consumed by the effect system). */
+  private camelizeEventTemplate(raw: Record<string, unknown>): EventTemplate {
+    // Camelize top-level fields (trigger_date → triggerDate) and choice fields
+    const camelized = this.deepCamelize<Record<string, unknown>>(raw);
+    // Preserve effects keys as authored (snake_case), matching the LLM effect-target vocabulary
+    camelized.choices = ((raw.choices || []) as Array<Record<string, unknown>>).map((rawChoice, i) => ({
+      ...(camelized.choices as Array<Record<string, unknown>>)[i] as Record<string, unknown>,
+      effects: rawChoice.effects || {},
+    }));
+    return camelized as unknown as EventTemplate;
+  }
+
   listEras(): EraMeta[] {
     if (!fs.existsSync(this.erasDir)) {
       return [];
@@ -84,7 +96,15 @@ export class EraService {
     const promptTemplate = fs.readFileSync(path.join(dir, 'prompt_template.md'), 'utf-8');
     const groundingDocs = fs.readFileSync(path.join(dir, 'grounding_docs.md'), 'utf-8');
 
-    const era: Era = { meta, config, promptTemplate, groundingDocs };
+    // Optionally load scripted events; absent file is fine (empty list)
+    const eventsPath = path.join(dir, 'events.json');
+    let events: EventTemplate[] = [];
+    if (fs.existsSync(eventsPath)) {
+      const rawEvents = JSON.parse(fs.readFileSync(eventsPath, 'utf-8'));
+      events = (rawEvents.events || []).map((e: Record<string, unknown>) => this.camelizeEventTemplate(e));
+    }
+
+    const era: Era = { meta, config, promptTemplate, groundingDocs, events };
 
     const metaErrors = this.validator.validateMeta(meta);
     const configErrors = this.validator.validateConfig(config);

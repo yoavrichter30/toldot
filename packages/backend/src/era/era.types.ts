@@ -43,9 +43,27 @@ export interface CohortTemplate {
   preferredWork: string;
 }
 
+export interface EventChoiceTemplate {
+  label: string;
+  key: string;
+  /** Resource deltas applied when the player selects this choice, e.g. { funds: -50, public_trust: 10 }. */
+  effects: Record<string, number>;
+}
+
+export interface EventTemplate {
+  id: string;
+  title: string;
+  /** ISO date when the event is historically triggered; the DM decides when to spawn it. */
+  triggerDate: string;
+  description: string;
+  choices: EventChoiceTemplate[];
+}
+
 export interface Era {
   meta: EraMeta;
   config: EraConfig;
   promptTemplate: string;
   groundingDocs: string;
+  /** Scripted historical events loaded from events.json; empty when the file is absent. */
+  events: EventTemplate[];
 }

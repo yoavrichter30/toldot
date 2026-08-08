@@ -1,0 +1,76 @@
+{
+  "events": [
+    {
+      "id": "hapoel_hatzair_founded",
+      "title": "Hapoel Hatza'ir Founded",
+      "trigger_date": "1905-10-01",
+      "description": "A group of Jewish workers in Petah Tikva has founded Hapoel Hatza'ir ('The Young Worker'), the first Labor Zionist party in Ottoman Palestine. They advocate for Hebrew labor, workers' rights, and cooperative settlement. The movement is gaining traction among the new wave of idealistic immigrants arriving in Jaffa and the emerging agricultural settlements.",
+      "choices": [
+        {
+          "label": "Support the labor movement with funds and resources",
+          "key": "support_labor",
+          "effects": { "funds": -50, "public_trust": 10 }
+        },
+        {
+          "label": "Ignore the labor movement — let workers organize themselves",
+          "key": "ignore_labor",
+          "effects": { "public_trust": -5 }
+        }
+      ]
+    },
+    {
+      "id": "bar_giora_founded",
+      "title": "Bar Giora Defense Organization Founded",
+      "trigger_date": "1907-09-01",
+      "description": "A secret defense organization called Bar Giora has been formed by a group of guards from the Sejera training farm. They aim to provide armed protection for Jewish settlements, which have been increasingly vulnerable to Bedouin raids and Ottoman neglect. The organization operates in secrecy, but its existence is becoming known in Yishuv circles.",
+      "choices": [
+        {
+          "label": "Fund and arm Bar Giora with official backing",
+          "key": "fund_bar_giora",
+          "effects": { "funds": -30, "public_trust": 5, "ottoman_tolerance": -10 }
+        },
+        {
+          "label": "Let members self-organize without official support",
+          "key": "self_organize_defense",
+          "effects": { "public_trust": -3, "ottoman_tolerance": 5 }
+        }
+      ]
+    },
+    {
+      "id": "ahuzat_bayit_launched",
+      "title": "Ahuzat Bayit Launched",
+      "trigger_date": "1909-04-01",
+      "description": "A group of 60 families in Jaffa has formed the 'Ahuzat Bayit' ('Homestead') cooperative to build a new, modern Jewish neighborhood on the sand dunes north of Jaffa. They have secured a plot of land and drawn up plans for 66 houses with a modern water system. This could become the foundation of a new urban center.",
+      "choices": [
+        {
+          "label": "Approve the plan and provide financial backing",
+          "key": "approve_ahuzat_bayit",
+          "effects": { "funds": -60, "public_trust": 15 }
+        },
+        {
+          "label": "Delay — the funds are needed for rural settlements",
+          "key": "delay_ahuzat_bayit",
+          "effects": { "public_trust": -8 }
+        }
+      ]
+    },
+    {
+      "id": "degania_founded",
+      "title": "Degania — First Kvutza Founded",
+      "trigger_date": "1909-10-01",
+      "description": "A small group of pioneers has established Degania, the first kvutza (communal settlement), on the southern shore of the Sea of Galilee. They have received land from the Jewish National Fund and intend to farm it collectively — sharing all resources, labor, and produce equally. This experimental model could reshape the future of Jewish settlement in Palestine.",
+      "choices": [
+        {
+          "label": "Provide resources, tools, and an experienced agronomist",
+          "key": "support_degania",
+          "effects": { "funds": -40, "people": -5, "public_trust": 12 }
+        },
+        {
+          "label": "Let them struggle on their own — self-reliance builds character",
+          "key": "watch_degania_struggle",
+          "effects": { "public_trust": -3 }
+        }
+      ]
+    }
+  ]
+}
