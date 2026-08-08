@@ -18,18 +18,18 @@ interface MapPanelProps {
 }
 
 const PIN_COORDS: Record<string, [number, number]> = {
-  metulla:        [720, 80],
-  rosh_pinna:     [700, 290],
-  kinneret_farm:  [730, 480],
-  degamia:        [670, 510],
-  sejera:         [580, 480],
-  zikhron_yaakov: [230, 580],
-  hadera:         [200, 680],
-  kfar_saba:      [210, 860],
-  petah_tikva:    [180, 930],
-  jaffa:          [90, 950],
-  rishon_lezion:  [120, 1010],
-  rehovot:        [140, 1060],
+  metulla:        [642, 132],
+  rosh_pinna:     [624, 318],
+  kinneret_farm:  [642, 474],
+  degamia:        [642, 480],
+  sejera:         [540, 468],
+  zikhron_yaakov: [270, 558],
+  hadera:         [240, 636],
+  kfar_saba:      [246, 792],
+  petah_tikva:    [222, 852],
+  jaffa:          [150, 870],
+  rishon_lezion:  [174, 918],
+  rehovot:        [186, 966],
 };
 
 export function MapPanel({

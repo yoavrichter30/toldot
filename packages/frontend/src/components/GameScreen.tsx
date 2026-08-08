@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useGame } from '../context/GameContext';
-import { processTurn, getSession, SpawnedEvent } from '../api/game';
+import { processTurn, SpawnedEvent } from '../api/game';
 import { DMNarrative } from './DMNarrative';
 import { ResourcePanel } from './ResourcePanel';
 import { CohortPanel } from './CohortPanel';
@@ -59,20 +59,33 @@ export function GameScreen() {
     setSelectedLocation((prev) => (prev === locationId ? null : locationId));
   };
 
-  const handleSend = async (action: string) => {
-    if (!state.sessionId) return;
+  useEffect(() => {
+    if (openingStarted.current) return;
+    if (state.sessionId && state.turn === 0) {
+      openingStarted.current = true;
+      // Start the first turn directly
+      handleSendEffect('The committee begins its work.');
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.sessionId]);
+
+  // Separate function for use in effect to avoid stale closure
+  const handleSendEffect = async (action: string) => {
+    const sid = state.sessionId;
+    if (!sid) return;
     setProjectActionText('');
     dispatch({ type: 'SET_LOADING', loading: true });
     try {
-      const result = await processTurn(state.sessionId, action);
+      const result = await processTurn(sid, action);
       dispatch({ type: 'SET_TURN', data: result });
       setSuggestions(
         result.historicalNotes.length > 0 ? ['What would you like to know more about?'] : [],
       );
       setEvents(result.events || []);
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Failed to process turn';
+      const message = err instanceof Error ? err.message : 'Failed to start game';
       dispatch({ type: 'SET_ERROR', error: message });
+      openingStarted.current = false;
     }
   };
 
@@ -80,23 +93,6 @@ export function GameScreen() {
     setEvents((prev) => prev.filter((ev) => ev.id !== eventId));
     console.log(`Event ${eventId} resolved with choice: ${choiceKey}`);
   };
-
-  useEffect(() => {
-    if (openingStarted.current) return;
-    if (state.sessionId && state.turn === 0) {
-      openingStarted.current = true;
-      getSession(state.sessionId)
-        .then((data) => {
-          if (data.session) {
-            handleSend('The committee begins its work.');
-          }
-        })
-        .catch(() => {
-          openingStarted.current = false;
-        });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [state.sessionId, state.turn]);
 
   if (state.gameOver) return <GameOverScreen />;
 
@@ -149,7 +145,7 @@ export function GameScreen() {
             <div className="action-area">
               <ActionInput
                 suggestions={enhancedSuggestions}
-                onSend={handleSend}
+                onSend={handleSendEffect}
                 disabled={state.loading}
                 externalAction={projectActionText}
               />
