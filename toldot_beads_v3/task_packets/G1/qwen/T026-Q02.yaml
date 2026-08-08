@@ -1,0 +1,88 @@
+id: T026-Q02
+parent_task_id: T026
+milestone: M02
+title: Create strict locations JSON schema
+executor_profile: qwen_implementer
+depends_on:
+- T026-Q01
+risk: low
+context_policy:
+  max_input_tokens: 12000
+  max_files_in_context: 8
+  include_git_diff: true
+  never_include_entire_repository: true
+change_budget:
+  allowed_write_files:
+  - schemas/locations.schema.json
+  max_changed_lines: 180
+  max_new_dependencies: 0
+  max_production_files: 1
+read_first:
+- AGENTS.md
+- docs/architecture.md
+- docs/simulation_rules.md
+- schemas/scenario.schema.json
+- schemas/routes.schema.json
+- schemas/cohorts.schema.json
+- schemas/projects.schema.json
+- schemas/events.schema.json
+objective: Create strict schemas for first-iteration content categories.
+exact_instructions:
+- Use JSON Schema draft 2020-12.
+- Require schema_version and all IDs defined in docs/content_format.md.
+- Set additionalProperties:false on every owned object.
+- Use lowercase_snake_case pattern for IDs.
+- Do not include future-system fields.
+required_api_or_shapes: []
+tests_or_checks_to_add:
+- Do not add tests unless an allowed test file is listed.
+- Do not weaken, delete, skip, or rewrite an existing test to make the task pass.
+acceptance_criteria:
+- The file parses as JSON and rejects a missing required ID.
+validation:
+  level: full
+  commands:
+  - python -m json.tool schemas/scenario.schema.json >/dev/null
+  - python -m json.tool schemas/events.schema.json >/dev/null
+  must_capture_exit_code: true
+  must_include_relevant_failure_lines: true
+forbidden:
+- Do not modify files outside allowed_write_files.
+- Do not refactor unrelated code.
+- Do not add packages, addons, autoloads, editor plugins, or generated binaries.
+- Do not invent a new API when required_api_or_shapes specifies one.
+- Do not leave TODO, pass, placeholder returns, or commented-out failed attempts unless explicitly requested.
+- Do not add all possible future content fields.
+stop_and_report_if:
+- A required read file is missing.
+- The requested API conflicts with already accepted code.
+- A validation failure is outside the allowed write files.
+- Completion would exceed max_changed_lines by more than 20 percent.
+- Two focused repair attempts fail.
+required_response:
+  format: yaml
+  fields:
+  - task_id
+  - status
+  - summary
+  - files_changed
+  - commands_run
+  - command_results
+  - acceptance_checklist
+  - remaining_problem
+  status_values:
+  - completed
+  - blocked
+  - failed
+  no_markdown_fences: true
+status: pending
+resolved_owner: qwen
+resolved_category: code
+resolved_owner_detail: qwen3.5:9b
+human_required: false
+placeholder_allowed: false
+beads:
+  id: toldot-t026-q02
+  external_ref: T026-Q02
+  gate: G1
+  labels: []

@@ -3,4 +3,4 @@ title: "From Moshavot to Yishuv — the Second Aliyah"
 start_date: "1904-01-01"
 end_date: "1914-07-01"
 max_turns: 126
-model: "qwen3.5:9b"
+model: "qwen2.5:3b"

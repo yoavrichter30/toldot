@@ -1,0 +1,65 @@
+id: H008
+milestone: M07
+title: Perform Hebrew and mixed-direction layout review
+executor_profile: human_visual
+depends_on:
+- T085-Q03
+- T088-Q12
+- H002
+risk: high
+objective: Verify Hebrew, English, numbers, dates, and mixed-direction content remain readable and correctly ordered.
+exact_instructions:
+- Review top bar, location panel, cohort inbox, project rows, event popup, tutorial, and outcome screen.
+- Test long Hebrew strings and mixed Hebrew/English location names.
+- Check alignment, punctuation, number order, truncation, and font fallback.
+- Create a Beads bug for every failure; do not patch UI during review.
+acceptance_criteria:
+- Every listed screen is reviewed.
+- Mixed-direction examples are included in the report.
+- Blocking layout issues have bug IDs.
+- Reviewer explicitly approves or rejects Hebrew-readiness.
+change_budget:
+  allowed_write_files:
+  - ops/reviews/hebrew_layout_qa.md
+  max_changed_lines: 300
+  max_new_dependencies: 0
+  max_production_files: 1
+read_first:
+- docs/font_decision.md
+- content/localization/he.json
+validation:
+  level: manual
+  commands:
+  - test -f ops/reviews/hebrew_layout_qa.md
+  must_capture_exit_code: true
+  must_include_relevant_failure_lines: true
+forbidden:
+- Do not rewrite translations during the review.
+stop_and_report_if:
+- Hebrew localization is incomplete.
+required_response:
+  format: yaml
+  fields:
+  - task_id
+  - status
+  - summary
+  - files_changed
+  - acceptance_checklist
+  - created_bug_ids
+  status_values:
+  - completed
+  - blocked
+  - failed
+  no_markdown_fences: true
+status: pending
+human_required: true
+human_category: language_visual_review
+placeholder_allowed: false
+resolved_owner: human
+resolved_category: language_visual_review
+resolved_owner_detail: human_visual
+beads:
+  id: toldot-h008
+  external_ref: H008
+  gate: G3
+  labels: []

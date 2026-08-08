@@ -1,0 +1,86 @@
+id: T068-Q02
+parent_task_id: T068
+milestone: M05
+title: Wire startup and UI in main script
+executor_profile: qwen_ui_implementer
+depends_on:
+- T068-Q01
+risk: low
+context_policy:
+  max_input_tokens: 12000
+  max_files_in_context: 8
+  include_git_diff: true
+  never_include_entire_repository: true
+change_budget:
+  allowed_write_files:
+  - src/app/main.gd
+  max_changed_lines: 140
+  max_new_dependencies: 0
+  max_production_files: 1
+read_first:
+- AGENTS.md
+- docs/architecture.md
+- docs/simulation_rules.md
+- scenes/main.tscn
+objective: Combine GameSession, GameClock, map, top bar, location panel, and cohort inbox.
+exact_instructions:
+- Load res://content/scenarios/yishuv_1904 through GameSession in _ready.
+- Connect map selection to location panel.
+- Connect top bar speed request to GameClock.
+- Bind all panels to GameSession.
+- Show a visible error label on load failure.
+required_api_or_shapes: []
+tests_or_checks_to_add:
+- Do not add tests unless an allowed test file is listed.
+- Do not weaken, delete, skip, or rewrite an existing test to make the task pass.
+acceptance_criteria:
+- The game starts into the 1904 map.
+- Time can pause and advance.
+- Location selection works.
+- A load failure does not crash or show a blank screen.
+validation:
+  level: visual
+  commands:
+  - godot --headless --path . --quit-after 3
+  must_capture_exit_code: true
+  must_include_relevant_failure_lines: true
+forbidden:
+- Do not modify files outside allowed_write_files.
+- Do not refactor unrelated code.
+- Do not add packages, addons, autoloads, editor plugins, or generated binaries.
+- Do not invent a new API when required_api_or_shapes specifies one.
+- Do not leave TODO, pass, placeholder returns, or commented-out failed attempts unless explicitly requested.
+- Do not add main menu.
+stop_and_report_if:
+- A required read file is missing.
+- The requested API conflicts with already accepted code.
+- A validation failure is outside the allowed write files.
+- Completion would exceed max_changed_lines by more than 20 percent.
+- Two focused repair attempts fail.
+required_response:
+  format: yaml
+  fields:
+  - task_id
+  - status
+  - summary
+  - files_changed
+  - commands_run
+  - command_results
+  - acceptance_checklist
+  - remaining_problem
+  status_values:
+  - completed
+  - blocked
+  - failed
+  no_markdown_fences: true
+status: pending
+resolved_owner: qwen
+resolved_category: ui
+resolved_owner_detail: qwen3.5:9b
+human_required: false
+placeholder_allowed: false
+beads:
+  id: toldot-t068-q02
+  external_ref: T068-Q02
+  gate: G2
+  labels: []

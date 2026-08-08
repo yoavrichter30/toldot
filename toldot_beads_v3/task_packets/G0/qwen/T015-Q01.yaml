@@ -1,0 +1,86 @@
+id: T015-Q01
+parent_task_id: T015
+milestone: M01
+title: Create pinned CI workflow
+executor_profile: qwen_implementer
+depends_on:
+- T012-Q04
+- T013-Q02
+risk: low
+context_policy:
+  max_input_tokens: 12000
+  max_files_in_context: 8
+  include_git_diff: true
+  never_include_entire_repository: true
+change_budget:
+  allowed_write_files:
+  - .github/workflows/test.yml
+  max_changed_lines: 120
+  max_new_dependencies: 0
+  max_production_files: 1
+read_first:
+- AGENTS.md
+- docs/architecture.md
+objective: Run the same headless test command on every pull request.
+exact_instructions:
+- Create workflow for pull_request and pushes to main.
+- Install pinned Godot 4.7.1, not latest.
+- Run headless editor import.
+- Run res://tools/test_runner.gd.
+- Upload a text log only on failure.
+- Do not require secrets.
+required_api_or_shapes: []
+tests_or_checks_to_add:
+- Do not add tests unless an allowed test file is listed.
+- Do not weaken, delete, skip, or rewrite an existing test to make the task pass.
+acceptance_criteria:
+- Workflow pins Godot 4.7.1 rather than latest.
+- Workflow uses --headless.
+- Workflow fails when test_runner exits nonzero.
+- No secrets are required.
+validation:
+  level: full
+  commands:
+  - godot --headless --path . --script res://tools/test_runner.gd
+  must_capture_exit_code: true
+  must_include_relevant_failure_lines: true
+forbidden:
+- Do not modify files outside allowed_write_files.
+- Do not refactor unrelated code.
+- Do not add packages, addons, autoloads, editor plugins, or generated binaries.
+- Do not invent a new API when required_api_or_shapes specifies one.
+- Do not leave TODO, pass, placeholder returns, or commented-out failed attempts unless explicitly requested.
+- Do not export game binaries.
+stop_and_report_if:
+- A required read file is missing.
+- The requested API conflicts with already accepted code.
+- A validation failure is outside the allowed write files.
+- Completion would exceed max_changed_lines by more than 20 percent.
+- Two focused repair attempts fail.
+required_response:
+  format: yaml
+  fields:
+  - task_id
+  - status
+  - summary
+  - files_changed
+  - commands_run
+  - command_results
+  - acceptance_checklist
+  - remaining_problem
+  status_values:
+  - completed
+  - blocked
+  - failed
+  no_markdown_fences: true
+status: pending
+resolved_owner: qwen
+resolved_category: code
+resolved_owner_detail: qwen3.5:9b
+human_required: false
+placeholder_allowed: false
+beads:
+  id: toldot-t015-q01
+  external_ref: T015-Q01
+  gate: G0
+  labels: []

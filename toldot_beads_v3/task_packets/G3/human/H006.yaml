@@ -1,0 +1,63 @@
+id: H006
+milestone: M07
+title: Create event document-frame assets
+executor_profile: human_visual
+depends_on:
+- H001
+- T083-Q03
+risk: low
+objective: Create reusable visual frames for letters, telegrams, newspapers, and committee minutes.
+exact_instructions:
+- Create four original nine-patch-compatible frame assets.
+- Keep center areas low contrast for readable text.
+- Do not fabricate historical seals, signatures, or newspaper mastheads.
+- Deliver scalable SVG/PNG assets and a preview sheet.
+acceptance_criteria:
+- Four frame types and one preview sheet exist.
+- Frames support long English and Hebrew text.
+- No invented document is presented as an authentic artifact.
+- Assets are original or appropriately licensed.
+change_budget:
+  allowed_write_files:
+  - assets/ui/event_frames/
+  max_changed_lines: 0
+  max_new_dependencies: 0
+  max_production_files: 9
+read_first:
+- docs/visual_direction.md
+- research/events_1904_1909.md
+validation:
+  level: manual
+  commands:
+  - find assets/ui/event_frames -type f | sort
+  must_capture_exit_code: true
+  must_include_relevant_failure_lines: true
+forbidden:
+- Do not include AI-generated fake handwriting presented as historical text.
+stop_and_report_if:
+- Historical format labels are not approved.
+required_response:
+  format: yaml
+  fields:
+  - task_id
+  - status
+  - summary
+  - files_changed
+  - acceptance_checklist
+  status_values:
+  - completed
+  - blocked
+  - failed
+  no_markdown_fences: true
+status: pending
+human_required: false
+human_category: asset_generation
+placeholder_allowed: true
+resolved_owner: human
+resolved_category: asset_generation
+resolved_owner_detail: human_visual
+beads:
+  id: toldot-h006
+  external_ref: H006
+  gate: G3
+  labels: []

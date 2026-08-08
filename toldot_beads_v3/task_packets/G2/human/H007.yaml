@@ -1,0 +1,65 @@
+id: H007
+milestone: M06
+title: Perform G2 visual usability review
+executor_profile: human_visual
+depends_on:
+- T068-Q02
+- T077-Q02
+- H002
+risk: medium
+objective: Review the playable settlement screen at target resolution before historical events are added.
+exact_instructions:
+- Run the game at 2560x1440 and 1920x1080.
+- Check map labels, location selection, top bar, cohort inbox, project rows, and foundation panel.
+- Record clipping, overlap, unreadable text, unclear actions, and missing disabled-state reasons.
+- Create separate Beads bug tasks for every blocking issue; do not fix them inside this review.
+acceptance_criteria:
+- Review covers both target resolutions.
+- At least one screenshot per reviewed screen is referenced by local path.
+- Each blocking problem has a reproducible bug task.
+- Review ends with pass or fail for G2 usability.
+change_budget:
+  allowed_write_files:
+  - ops/reviews/g2_visual_qa.md
+  max_changed_lines: 260
+  max_new_dependencies: 0
+  max_production_files: 1
+read_first:
+- docs/visual_direction.md
+- docs/font_decision.md
+validation:
+  level: manual
+  commands:
+  - test -f ops/reviews/g2_visual_qa.md
+  must_capture_exit_code: true
+  must_include_relevant_failure_lines: true
+forbidden:
+- Do not fix code during review.
+stop_and_report_if:
+- The game cannot reach the G2 loop.
+required_response:
+  format: yaml
+  fields:
+  - task_id
+  - status
+  - summary
+  - files_changed
+  - acceptance_checklist
+  - created_bug_ids
+  status_values:
+  - completed
+  - blocked
+  - failed
+  no_markdown_fences: true
+status: pending
+human_required: true
+human_category: visual_review
+placeholder_allowed: false
+resolved_owner: human
+resolved_category: visual_review
+resolved_owner_detail: human_visual
+beads:
+  id: toldot-h007
+  external_ref: H007
+  gate: G2
+  labels: []

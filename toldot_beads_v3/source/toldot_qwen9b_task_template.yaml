@@ -1,0 +1,60 @@
+id: TXXX-QYY
+parent_task_id: TXXX
+milestone: MXX
+title: One observable behavior only
+executor_profile: qwen_implementer
+depends_on:
+- previous accepted microtask
+context_policy:
+  max_input_tokens: 12000
+  max_files_in_context: 8
+  include_git_diff: true
+  never_include_entire_repository: true
+change_budget:
+  allowed_write_files:
+  - one_production_file
+  - optional_one_test_file
+  max_changed_lines: 90
+  max_new_dependencies: 0
+  max_production_files: 1
+read_first:
+- AGENTS.md
+- one relevant contract
+- existing implementation file
+objective: One sentence with no design ambiguity.
+exact_instructions:
+- Exact method/class/JSON object to add.
+- Exact behavior and edge cases.
+- Exact things not to change.
+required_api_or_shapes:
+- 'func example(input: int) -> int:'
+tests_or_checks_to_add:
+- Concrete input -> expected output examples.
+acceptance_criteria:
+- Observable pass conditions.
+validation:
+  level: targeted
+  commands:
+  - one exact command
+  must_capture_exit_code: true
+  must_include_relevant_failure_lines: true
+forbidden:
+- No unrelated files.
+- No refactor.
+- No dependency.
+- No placeholder.
+stop_and_report_if:
+- Required file missing.
+- Specification conflicts with accepted API.
+- Two attempts fail.
+required_response:
+  format: yaml
+  fields:
+  - task_id
+  - status
+  - summary
+  - files_changed
+  - commands_run
+  - command_results
+  - acceptance_checklist
+  - remaining_problem

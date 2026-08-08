@@ -1,0 +1,71 @@
+schema_version: '2.0'
+verdict: feasible_with_strict_orchestration
+plain_language: Qwen3.5-9B can implement a small Toldot vertical slice, but it should not be asked to invent architecture,
+  historical content, or multi-system integrations. It is an implementer inside a constrained workflow, not the project lead.
+recommended_stack:
+  engine: Godot 4.7.1 Standard
+  language: Typed GDScript
+  reason: Keeps the toolchain small and permits fast headless parse/test loops. Exact Godot APIs must be supplied in task
+    packets.
+  content: JSON with strict validators
+  map: Node-and-route map, not province polygons
+model_runtime:
+  model: qwen3.5:9b Q4_K_M through Ollama or an OpenAI-compatible local server
+  suggested_context_tokens: 12000
+  native_context_note: The model advertises a much larger native context, but the project intentionally uses small focused
+    context packets.
+  coding_sampling:
+    temperature: 0.6
+    top_p: 0.95
+    top_k: 20
+    presence_penalty: 0.0
+  review_sampling:
+    temperature: 0.2
+    top_p: 0.9
+    top_k: 20
+  max_repair_attempts_per_task: 2
+safe_for_qwen9b:
+- Implement one class or one method from an exact signature.
+- Add a narrow unit test with explicit examples.
+- Create or edit one JSON content object against a schema.
+- Wire one existing signal between already-defined nodes.
+- Fix one compiler/parser/test failure with a localized cause.
+must_be_predecided_or_escalated:
+- Architecture, directory layout, and cross-layer API design.
+- Changing simulation formulas across several systems.
+- Complex Godot scene layout or visual judgment.
+- Historical research, source evaluation, and sensitive representation decisions.
+- Refactors touching more than three production files.
+- Debugging nondeterministic integration failures after two attempts.
+scope_for_first_iteration:
+  scenario: 1904-1909 Yishuv foundation-building vertical slice
+  core_loop: Receive cohort -> inspect needs -> assign location -> build housing/water/work/institution -> retain people ->
+    improve foundation tracks -> unlock Ahuzat Bayit.
+  locations: 12
+  initial_proof_locations: 3
+  events_target: Begin with 6 core events; expand only after the event pipeline passes.
+  non_goals:
+  - Combat
+  - province ownership
+  - full diplomacy
+  - characters/dynasties
+  - market simulation
+  - multiplayer
+  - runtime LLM
+estimated_task_distribution:
+  note: Planning estimate, not a measured benchmark.
+  qwen_implementation_packets: 210
+  human_or_strong_packets: 17
+  total_packets: 227
+success_conditions_for_the_setup:
+- OMP can pass only the task packet and listed context files.
+- The agent can run shell commands and read exit codes.
+- Git diff can be inspected after every task.
+- A reviewer can reject unauthorized edits.
+- You are willing to intervene on architecture, historical content, and hard integration bugs.
+failure_modes:
+- Giving the model a milestone instead of one microtask.
+- Letting it read the whole repository and choose what to modify.
+- Accepting code because it looks plausible without running tests.
+- Allowing it to rewrite .tscn scenes and simulation files in the same task.
+- Retrying a broken task indefinitely instead of escalating after two attempts.

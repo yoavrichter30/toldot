@@ -1,0 +1,71 @@
+id: H010
+milestone: M08
+title: Complete three human playtest runs
+executor_profile: human_playtester
+depends_on:
+- T098-Q02
+- T099-Q02
+- H007
+- H008
+- H009
+risk: high
+objective: Verify the prototype is understandable, stable, and emotionally coherent without developer guidance.
+exact_instructions:
+- Play one settlement-first run, one institution-first run, and one donor-assisted run.
+- Do not use debug controls or inspect source files during play.
+- Record duration, outcome, confusing decisions, dead time, dominant strategies, and historical-tone concerns.
+- Create separate tasks for blockers and balance problems.
+- Give an explicit ship/no-ship recommendation for the first iteration.
+acceptance_criteria:
+- Three complete run reports exist.
+- Each run records seed, duration, strategy, outcome, and four final track values.
+- Every blocking defect has a Beads task.
+- The report provides a ship or no-ship recommendation.
+change_budget:
+  allowed_write_files:
+  - ops/reviews/human_playtest_report.md
+  max_changed_lines: 600
+  max_new_dependencies: 0
+  max_production_files: 1
+read_first:
+- docs/balance_notes.md
+- ops/reviews/g2_visual_qa.md
+- ops/reviews/hebrew_layout_qa.md
+- ops/reviews/historical_content_acceptance.md
+validation:
+  level: manual
+  commands:
+  - test -f ops/reviews/human_playtest_report.md
+  must_capture_exit_code: true
+  must_include_relevant_failure_lines: true
+forbidden:
+- Do not change game files during playtests.
+stop_and_report_if:
+- Any run cannot finish because of a blocker.
+required_response:
+  format: yaml
+  fields:
+  - task_id
+  - status
+  - summary
+  - files_changed
+  - acceptance_checklist
+  - created_task_ids
+  - recommendation
+  status_values:
+  - completed
+  - blocked
+  - failed
+  no_markdown_fences: true
+status: pending
+human_required: true
+human_category: playtest
+placeholder_allowed: false
+resolved_owner: human
+resolved_category: playtest
+resolved_owner_detail: human_playtester
+beads:
+  id: toldot-h010
+  external_ref: H010
+  gate: G4
+  labels: []

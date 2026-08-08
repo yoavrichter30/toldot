@@ -1,0 +1,112 @@
+schema_version: '2.0'
+global_orchestration:
+  one_task_per_run: true
+  fresh_context_per_task: true
+  max_attempts: 2
+  after_each_attempt:
+  - run validation
+  - inspect git diff
+  - run reviewer
+  on_second_failure: mark blocked and escalate; do not broaden permissions
+agents:
+- id: qwen_implementer
+  model: qwen3.5:9b
+  purpose: Implement one non-visual code microtask.
+  system_prompt: You are a narrow implementation agent. Execute exactly one supplied task packet. Read only the supplied files.
+    Modify only allowed_write_files. Follow required APIs literally. Do not redesign, refactor, add dependencies, or fix unrelated
+    problems. Run every validation command. After at most two focused fixes, stop and report blocked. Return only the requested
+    YAML handoff.
+  tool_permissions:
+  - read_file
+  - write_file
+  - git_diff
+  - shell
+  forbidden_tools:
+  - web
+  - package_install
+  - git_reset_hard
+  settings:
+    temperature: 0.6
+    top_p: 0.95
+    top_k: 20
+    max_context_tokens: 12000
+- id: qwen_ui_implementer
+  model: qwen3.5:9b
+  purpose: Implement one Godot UI or scene microtask with exact hierarchy/API.
+  system_prompt: You implement one Godot UI packet. Never place game rules in presentation code. Do not edit simulation files.
+    Prefer Containers and existing scenes. Do not manually invent node paths outside those named in the task. Run parse checks.
+    Visual correctness is reviewed by a human; do not claim it looks correct without a screenshot.
+  tool_permissions:
+  - read_file
+  - write_file
+  - git_diff
+  - shell
+  settings:
+    temperature: 0.5
+    top_p: 0.95
+    top_k: 20
+    max_context_tokens: 12000
+- id: qwen_content
+  model: qwen3.5:9b
+  purpose: Encode already-researched content into strict JSON/localization.
+  system_prompt: You are a data-entry and schema-conformance agent, not a historian. Use only approved research notes. Do
+    not invent dates, population figures, quotations, or historical claims. Modify only the listed content files. Keep English
+    and Hebrew localization key sets identical. Run JSON and content validators.
+  tool_permissions:
+  - read_file
+  - write_file
+  - git_diff
+  - shell
+  settings:
+    temperature: 0.3
+    top_p: 0.9
+    top_k: 20
+    max_context_tokens: 10000
+- id: qwen_reviewer
+  model: qwen3.5:9b
+  purpose: Review one completed diff against a task without writing code.
+  system_prompt: You are a strict diff reviewer. Do not edit files. Compare the task packet, git diff, and command output.
+    Reject any out-of-scope file, missing acceptance criterion, weakened test, placeholder, or unverified claim. Return ACCEPT
+    or REJECT with exact evidence and file/line references.
+  tool_permissions:
+  - read_file
+  - git_diff
+  - shell_readonly
+  settings:
+    temperature: 0.2
+    top_p: 0.9
+    top_k: 20
+    max_context_tokens: 10000
+- id: qwen_test_fixer
+  model: qwen3.5:9b
+  purpose: Fix one known local test or parse failure after implementation.
+  system_prompt: Fix only the supplied failure. You may edit only the same files allowed to the original task. Do not change
+    test expectations unless the task specification is inconsistent and you stop to report that conflict. Run the failing
+    command, make one focused patch, rerun it, then run the relevant suite.
+  tool_permissions:
+  - read_file
+  - write_file
+  - git_diff
+  - shell
+  settings:
+    temperature: 0.4
+    top_p: 0.9
+    top_k: 20
+    max_context_tokens: 10000
+- id: human_or_strong
+  model: human or frontier model with web access
+  purpose: Own architecture, research, balance, and final acceptance.
+  responsibilities:
+  - Author guardrail docs
+  - Research and source history
+  - Resolve architecture conflicts
+  - Review sensitive content
+  - Run final integration acceptance
+- id: human_or_visual
+  model: human visual reviewer
+  purpose: Create/review original map art and visually inspect UI.
+  responsibilities:
+  - Check readability at target resolution
+  - Check map geography is recognizable but not misleading
+  - Verify Hebrew/English layout
+  - Reject overlaps and clipped controls

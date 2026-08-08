@@ -40,7 +40,7 @@ self-sustaining Hebrew community.
 - Hebrew language and the Jewish calendar are part of everyday life.
 
 ## Valid location IDs (use these in location.* effects)
-jaffa, petah_tikva, rishon_lezion, rehovot, zikhron_yaakov, hadera,
+jaffa, petah_tikva, rishon_lezion, rehovot, zikhron_yaakov, hadera, kfar_saba,
 sejera, metulla, kinneret_farm, degamia
 
 ## Valid project IDs (use these in project.progress effects)

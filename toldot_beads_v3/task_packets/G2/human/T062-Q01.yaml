@@ -1,0 +1,86 @@
+id: T062-Q01
+parent_task_id: T062
+milestone: M05
+title: Create original prototype base map
+executor_profile: human_or_visual
+depends_on:
+- T010-Q04
+- T051-Q04
+risk: low
+context_policy:
+  max_input_tokens: 12000
+  max_files_in_context: 8
+  include_git_diff: true
+  never_include_entire_repository: true
+change_budget:
+  allowed_write_files:
+  - assets/map/yishuv_1904_base.png
+  max_changed_lines: 0
+  max_new_dependencies: 0
+  max_production_files: 1
+read_first:
+- AGENTS.md
+- docs/architecture.md
+- docs/simulation_rules.md
+- scenes/map/strategic_map.tscn
+- src/presentation/map/strategic_map.gd
+objective: Display a static prototype map background inside a pan-and-zoom container.
+exact_instructions:
+- Create a simple original placeholder map image with coastline and neutral land/water.
+- Do not copy a copyrighted historical map.
+- Do not draw authoritative political borders.
+- Use 1600x1000 pixels.
+required_api_or_shapes: []
+tests_or_checks_to_add:
+- Do not add tests unless an allowed test file is listed.
+- Do not weaken, delete, skip, or rewrite an existing test to make the task pass.
+acceptance_criteria:
+- PNG opens and has correct dimensions.
+validation:
+  level: visual
+  commands:
+  - godot --headless --path . --editor --quit
+  must_capture_exit_code: true
+  must_include_relevant_failure_lines: true
+forbidden:
+- Do not modify files outside allowed_write_files.
+- Do not refactor unrelated code.
+- Do not add packages, addons, autoloads, editor plugins, or generated binaries.
+- Do not invent a new API when required_api_or_shapes specifies one.
+- Do not leave TODO, pass, placeholder returns, or commented-out failed attempts unless explicitly requested.
+- Do not add historically authoritative borders.
+- Do not use copyrighted map art.
+stop_and_report_if:
+- A required read file is missing.
+- The requested API conflicts with already accepted code.
+- A validation failure is outside the allowed write files.
+- Completion would exceed max_changed_lines by more than 20 percent.
+- Two focused repair attempts fail.
+required_response:
+  format: yaml
+  fields:
+  - task_id
+  - status
+  - summary
+  - files_changed
+  - commands_run
+  - command_results
+  - acceptance_checklist
+  - remaining_problem
+  status_values:
+  - completed
+  - blocked
+  - failed
+  no_markdown_fences: true
+status: pending
+resolved_owner: human
+resolved_category: visual_asset
+resolved_owner_detail: human-or-image-tool
+human_required: true
+placeholder_allowed: false
+human_category: base_map_asset
+beads:
+  id: toldot-t062-q01
+  external_ref: T062-Q01
+  gate: G2
+  labels: []

@@ -1,0 +1,50 @@
+schema_version: '2.0'
+task_loop:
+- step: 1
+  action: Orchestrator selects the first pending task whose dependencies are accepted.
+- step: 2
+  action: Create a clean git branch/worktree named after the microtask ID.
+- step: 3
+  action: Pass the agent only the microtask packet, read_first files that exist, and current git diff.
+- step: 4
+  action: Agent implements and runs validation, returning the required YAML handoff.
+- step: 5
+  action: Reject immediately if files outside allowed_write_files changed.
+- step: 6
+  action: Run qwen_reviewer in a fresh context with task, diff, and command output.
+- step: 7
+  action: If rejected for a local defect, run qwen_test_fixer once. If still rejected, escalate.
+- step: 8
+  action: Human/orchestrator marks accepted and merges only after commands pass.
+prompt_envelope:
+  system: Use the system_prompt from the selected executor profile.
+  user_sections:
+  - TASK_PACKET
+  - RELEVANT_FILE_CONTENTS
+  - CURRENT_GIT_DIFF
+  - LAST_COMMAND_OUTPUT
+  rule: Do not append the full epic or unrelated repository files.
+first_session_sequence:
+- T001-Q01
+- T002-Q01
+- T003-Q01
+- T005-Q01
+- T006-Q01
+- T010-Q01
+- T010-Q02
+- T010-Q03
+- T010-Q04
+- T011-Q01
+- T011-Q02
+- T012-Q01
+- T012-Q02
+- T012-Q03
+- T012-Q04
+- T013-Q01
+- T013-Q02
+- T014-Q01
+- T014-Q02
+- T014-Q03
+- T014-Q04
+early_abort_rule: If three of the first ten Qwen-owned packets need escalation, simplify tooling or use a stronger coding
+  model for scaffolding before continuing.

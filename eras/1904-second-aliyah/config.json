@@ -61,6 +61,16 @@
       "population_capacity": 400
     },
     {
+      "id": "kfar_saba",
+      "name": "Kfar Saba",
+      "type": "moshava",
+      "founded": 1903,
+      "initial_housing": 8,
+      "initial_water": 5,
+      "initial_health": 15,
+      "population_capacity": 200
+    },
+    {
       "id": "sejera",
       "name": "Sejera (Ilaniya)",
       "type": "training_farm",

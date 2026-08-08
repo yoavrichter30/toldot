@@ -1,0 +1,64 @@
+id: H001
+milestone: M04
+title: Approve first-iteration visual direction
+executor_profile: human_visual
+depends_on:
+- T004-Q01
+risk: medium
+objective: Lock a small, consistent visual direction before map and icon production.
+exact_instructions:
+- 'Choose one visual reference direction: archival-paper, clean-atlas, or illustrated-historical.'
+- Approve a restrained color palette for land, sea, routes, settlements, alerts, and four foundation tracks.
+- Approve rules for Hebrew and English text hierarchy.
+- Save 6-10 reference images as links only; do not copy copyrighted assets into the repository.
+- Write a one-page decision record that agents can follow literally.
+acceptance_criteria:
+- The direction names the approved map, panel, typography, icon, and event-card style.
+- The palette has semantic names and hex values.
+- The document distinguishes prototype placeholders from final assets.
+- Copyrighted references are links, not bundled files.
+change_budget:
+  allowed_write_files:
+  - docs/visual_direction.md
+  max_changed_lines: 220
+  max_new_dependencies: 0
+  max_production_files: 1
+read_first:
+- docs/historical_style.md
+- toldot_project.yaml
+validation:
+  level: manual
+  commands:
+  - test -f docs/visual_direction.md
+  must_capture_exit_code: true
+  must_include_relevant_failure_lines: true
+forbidden:
+- Do not create final art in this task.
+- Do not redesign gameplay.
+stop_and_report_if:
+- Historical representation conflicts with the chosen visual metaphor.
+required_response:
+  format: yaml
+  fields:
+  - task_id
+  - status
+  - summary
+  - files_changed
+  - acceptance_checklist
+  status_values:
+  - completed
+  - blocked
+  - failed
+  no_markdown_fences: true
+status: pending
+human_required: true
+human_category: art_direction
+placeholder_allowed: false
+resolved_owner: human
+resolved_category: art_direction
+resolved_owner_detail: human_visual
+beads:
+  id: toldot-h001
+  external_ref: H001
+  gate: G2
+  labels: []

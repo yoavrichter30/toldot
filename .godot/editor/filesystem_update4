@@ -1,0 +1,11 @@
+res://scenes/action_panel.tscn
+res://scenes/event_popup.tscn
+res://scenes/foundation_panel.tscn
+res://scenes/location_panel.tscn
+res://scenes/map_container.tscn
+res://src/app/content_loader.gd
+res://src/app/prompts/event_templates.gd
+res://src/app/prompts/narrative_templates.gd
+res://src/presentation/map/map_view.gd
+res://src/simulation/model/game_state.gd
+res://src/app/main.gd

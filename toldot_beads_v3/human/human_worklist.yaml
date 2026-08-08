@@ -1,0 +1,413 @@
+schema_version: '1.0'
+project: Toldot
+meaning:
+  human_required: Requires human judgment, visual inspection, licensing decision, or playtest.
+  human_review_required: A stronger model may draft it, but a human must approve before dependent historical or
+    architectural work is accepted.
+  placeholder_allowed: The game may proceed with a placeholder; this task is needed for visual polish rather than
+    simulation proof.
+must_do_or_approve:
+- id: T062-Q01
+  beads_id: toldot-t062-q01
+  gate: G2
+  milestone: M05
+  title: Create original prototype base map
+  category: base_map_asset
+  required: true
+  placeholder_allowed: false
+  depends_on: &id001
+  - T010-Q04
+  - T051-Q04
+  packet: task_packets/G2/human/T062-Q01.yaml
+  objective: Display a static prototype map background inside a pan-and-zoom container.
+- id: T099-Q01
+  beads_id: toldot-t099-q01
+  gate: G4
+  milestone: M08
+  title: Create three scripted balance policies and measurement report
+  category: playtest_analysis
+  required: true
+  placeholder_allowed: false
+  depends_on:
+  - T088-Q12
+  - T095-Q03
+  - T096-Q01
+  packet: task_packets/G4/human/T099-Q01.yaml
+  objective: Adjust only numeric prototype values so three documented play styles remain viable.
+- id: T099-Q02
+  beads_id: toldot-t099-q02
+  gate: G4
+  milestone: M08
+  title: Tune numeric content only
+  category: balance_tuning
+  required: true
+  placeholder_allowed: false
+  depends_on:
+  - T099-Q01
+  packet: task_packets/G4/human/T099-Q02.yaml
+  objective: Adjust only numeric prototype values so three documented play styles remain viable.
+- id: T100-Q01
+  beads_id: toldot-t100-q01
+  gate: G4
+  milestone: M08
+  title: Run final vertical-slice acceptance
+  category: final_acceptance
+  required: true
+  placeholder_allowed: false
+  depends_on:
+  - T091-Q02
+  - T093-Q02
+  - T094-Q02
+  - T096-Q01
+  - T098-Q02
+  - T099-Q02
+  packet: task_packets/G4/human/T100-Q01.yaml
+  objective: Verify the complete first iteration against the project definition of done.
+- id: H001
+  beads_id: toldot-h001
+  gate: G2
+  milestone: M04
+  title: Approve first-iteration visual direction
+  category: art_direction
+  required: true
+  placeholder_allowed: false
+  depends_on: &id002
+  - T004-Q01
+  packet: task_packets/G2/human/H001.yaml
+  objective: Lock a small, consistent visual direction before map and icon production.
+- id: H002
+  beads_id: toldot-h002
+  gate: G2
+  milestone: M04
+  title: Select licensed bilingual fonts
+  category: font_license
+  required: true
+  placeholder_allowed: true
+  depends_on: &id003
+  - H001
+  packet: task_packets/G2/human/H002.yaml
+  objective: Select fonts that render Hebrew and English clearly and can legally ship with the game.
+- id: H007
+  beads_id: toldot-h007
+  gate: G2
+  milestone: M06
+  title: Perform G2 visual usability review
+  category: visual_review
+  required: true
+  placeholder_allowed: false
+  depends_on: &id004
+  - T068-Q02
+  - T077-Q02
+  - H002
+  packet: task_packets/G2/human/H007.yaml
+  objective: Review the playable settlement screen at target resolution before historical events are added.
+- id: H008
+  beads_id: toldot-h008
+  gate: G3
+  milestone: M07
+  title: Perform Hebrew and mixed-direction layout review
+  category: language_visual_review
+  required: true
+  placeholder_allowed: false
+  depends_on: &id005
+  - T085-Q03
+  - T088-Q12
+  - H002
+  packet: task_packets/G3/human/H008.yaml
+  objective: Verify Hebrew, English, numbers, dates, and mixed-direction content remain readable and correctly ordered.
+- id: H009
+  beads_id: toldot-h009
+  gate: G3
+  milestone: M07
+  title: Approve historical content for the vertical slice
+  category: historical_approval
+  required: true
+  placeholder_allowed: false
+  depends_on:
+  - T088-Q12
+  packet: task_packets/G3/human/H009.yaml
+  objective: Perform final human judgment on event wording, actor representation, uncertainty, and source linkage.
+- id: H010
+  beads_id: toldot-h010
+  gate: G4
+  milestone: M08
+  title: Complete three human playtest runs
+  category: playtest
+  required: true
+  placeholder_allowed: false
+  depends_on:
+  - T098-Q02
+  - T099-Q02
+  - H007
+  - H008
+  - H009
+  packet: task_packets/G4/human/H010.yaml
+  objective: Verify the prototype is understandable, stable, and emotionally coherent without developer guidance.
+strong_model_can_draft_human_must_review:
+- id: T001-Q01
+  beads_id: toldot-t001-q01
+  gate: G0
+  milestone: M00
+  title: Create repository agent rules
+  category: architecture_spec
+  required: false
+  placeholder_allowed: false
+  depends_on: []
+  packet: task_packets/G0/strong_model/T001-Q01.yaml
+  objective: Create the single authoritative instruction file used by all coding agents.
+- id: T002-Q01
+  beads_id: toldot-t002-q01
+  gate: G0
+  milestone: M00
+  title: Write architecture boundary document
+  category: architecture_spec
+  required: false
+  placeholder_allowed: false
+  depends_on:
+  - T001-Q01
+  packet: task_packets/G0/strong_model/T002-Q01.yaml
+  objective: Define the minimum application architecture so future agents do not invent incompatible patterns.
+- id: T003-Q01
+  beads_id: toldot-t003-q01
+  gate: G0
+  milestone: M00
+  title: Write simulation rules document
+  category: architecture_spec
+  required: false
+  placeholder_allowed: false
+  depends_on:
+  - T002-Q01
+  packet: task_packets/G0/strong_model/T003-Q01.yaml
+  objective: Specify tick order, constrained resources, ID conventions, and deterministic behavior before implementation.
+- id: T004-Q01
+  beads_id: toldot-t004-q01
+  gate: G0
+  milestone: M00
+  title: Write historical representation guide
+  category: architecture_spec
+  required: false
+  placeholder_allowed: false
+  depends_on:
+  - T001-Q01
+  packet: task_packets/G0/strong_model/T004-Q01.yaml
+  objective: Create enforceable language and representation rules for scenario content.
+- id: T005-Q01
+  beads_id: toldot-t005-q01
+  gate: G0
+  milestone: M00
+  title: Write content format contract
+  category: architecture_spec
+  required: false
+  placeholder_allowed: false
+  depends_on:
+  - T002-Q01
+  - T003-Q01
+  - T004-Q01
+  packet: task_packets/G0/strong_model/T005-Q01.yaml
+  objective: Define JSON file shapes and the registered condition/effect approach.
+- id: T006-Q01
+  beads_id: toldot-t006-q01
+  gate: G0
+  milestone: M00
+  title: Write test strategy
+  category: architecture_spec
+  required: false
+  placeholder_allowed: false
+  depends_on:
+  - T002-Q01
+  - T003-Q01
+  - T005-Q01
+  packet: task_packets/G0/strong_model/T006-Q01.yaml
+  objective: Define the headless testing layers and exact pass/fail expectations.
+- id: T050-Q01
+  beads_id: toldot-t050-q01
+  gate: G2
+  milestone: M04
+  title: Research southern/central prototype locations
+  category: historical_research
+  required: false
+  placeholder_allowed: false
+  depends_on:
+  - T004-Q01
+  packet: task_packets/G2/strong_model/T050-Q01.yaml
+  objective: Create concise research notes for the twelve map locations as they relate to the 1904 scenario.
+- id: T050-Q02
+  beads_id: toldot-t050-q02
+  gate: G2
+  milestone: M04
+  title: Research northern prototype locations
+  category: historical_research
+  required: false
+  placeholder_allowed: false
+  depends_on:
+  - T050-Q01
+  packet: task_packets/G2/strong_model/T050-Q02.yaml
+  objective: Create concise research notes for the twelve map locations as they relate to the 1904 scenario.
+- id: T053-Q01
+  beads_id: toldot-t053-q01
+  gate: G2
+  milestone: M04
+  title: Research two Eastern European cohort abstractions
+  category: historical_research
+  required: false
+  placeholder_allowed: false
+  depends_on:
+  - T004-Q01
+  packet: task_packets/G2/strong_model/T053-Q01.yaml
+  objective: Research four broad arrival cohort archetypes without reducing people to stereotypes.
+- id: T053-Q02
+  beads_id: toldot-t053-q02
+  gate: G2
+  milestone: M04
+  title: Research Yemenite and urban artisan/professional abstractions
+  category: historical_research
+  required: false
+  placeholder_allowed: false
+  depends_on:
+  - T053-Q01
+  packet: task_packets/G2/strong_model/T053-Q02.yaml
+  objective: Research four broad arrival cohort archetypes without reducing people to stereotypes.
+- id: T083-Q01
+  beads_id: toldot-t083-q01
+  gate: G3
+  milestone: M07
+  title: Research six arrival and language events
+  category: historical_research
+  required: false
+  placeholder_allowed: false
+  depends_on:
+  - T004-Q01
+  - T050-Q02
+  - T053-Q02
+  packet: task_packets/G3/strong_model/T083-Q01.yaml
+  objective: Prepare historically grounded event briefs spanning the prototype's core systems.
+- id: T083-Q02
+  beads_id: toldot-t083-q02
+  gate: G3
+  milestone: M07
+  title: Research six labor, donor, and Ottoman events
+  category: historical_research
+  required: false
+  placeholder_allowed: false
+  depends_on:
+  - T083-Q01
+  packet: task_packets/G3/strong_model/T083-Q02.yaml
+  objective: Prepare historically grounded event briefs spanning the prototype's core systems.
+- id: T083-Q03
+  beads_id: toldot-t083-q03
+  gate: G3
+  milestone: M07
+  title: Research final six health, local-relations, and Ahuzat Bayit events
+  category: historical_research
+  required: false
+  placeholder_allowed: false
+  depends_on:
+  - T083-Q02
+  packet: task_packets/G3/strong_model/T083-Q03.yaml
+  objective: Prepare historically grounded event briefs spanning the prototype's core systems.
+visual_and_asset_tasks:
+- id: T062-Q01
+  beads_id: toldot-t062-q01
+  gate: G2
+  milestone: M05
+  title: Create original prototype base map
+  category: base_map_asset
+  required: true
+  placeholder_allowed: false
+  depends_on: *id001
+  packet: task_packets/G2/human/T062-Q01.yaml
+  objective: Display a static prototype map background inside a pan-and-zoom container.
+- id: H001
+  beads_id: toldot-h001
+  gate: G2
+  milestone: M04
+  title: Approve first-iteration visual direction
+  category: art_direction
+  required: true
+  placeholder_allowed: false
+  depends_on: *id002
+  packet: task_packets/G2/human/H001.yaml
+  objective: Lock a small, consistent visual direction before map and icon production.
+- id: H002
+  beads_id: toldot-h002
+  gate: G2
+  milestone: M04
+  title: Select licensed bilingual fonts
+  category: font_license
+  required: true
+  placeholder_allowed: true
+  depends_on: *id003
+  packet: task_packets/G2/human/H002.yaml
+  objective: Select fonts that render Hebrew and English clearly and can legally ship with the game.
+- id: H003
+  beads_id: toldot-h003
+  gate: G2
+  milestone: M05
+  title: Create five location-type icons
+  category: asset_generation
+  required: false
+  placeholder_allowed: true
+  depends_on:
+  - H001
+  packet: task_packets/G2/human/H003.yaml
+  objective: Create a readable icon set for location types used on the strategic map.
+- id: H004
+  beads_id: toldot-h004
+  gate: G2
+  milestone: M05
+  title: Create four global resource icons
+  category: asset_generation
+  required: false
+  placeholder_allowed: true
+  depends_on:
+  - H001
+  packet: task_packets/G2/human/H004.yaml
+  objective: Create original icons for funds, people, public trust, and Ottoman tolerance.
+- id: H005
+  beads_id: toldot-h005
+  gate: G2
+  milestone: M06
+  title: Create ten building and project icons
+  category: asset_generation
+  required: false
+  placeholder_allowed: true
+  depends_on:
+  - H001
+  - T055-Q05
+  packet: task_packets/G2/human/H005.yaml
+  objective: Create a compact icon set for the ten first-iteration improvements.
+- id: H006
+  beads_id: toldot-h006
+  gate: G3
+  milestone: M07
+  title: Create event document-frame assets
+  category: asset_generation
+  required: false
+  placeholder_allowed: true
+  depends_on:
+  - H001
+  - T083-Q03
+  packet: task_packets/G3/human/H006.yaml
+  objective: Create reusable visual frames for letters, telegrams, newspapers, and committee minutes.
+- id: H007
+  beads_id: toldot-h007
+  gate: G2
+  milestone: M06
+  title: Perform G2 visual usability review
+  category: visual_review
+  required: true
+  placeholder_allowed: false
+  depends_on: *id004
+  packet: task_packets/G2/human/H007.yaml
+  objective: Review the playable settlement screen at target resolution before historical events are added.
+- id: H008
+  beads_id: toldot-h008
+  gate: G3
+  milestone: M07
+  title: Perform Hebrew and mixed-direction layout review
+  category: language_visual_review
+  required: true
+  placeholder_allowed: false
+  depends_on: *id005
+  packet: task_packets/G3/human/H008.yaml
+  objective: Verify Hebrew, English, numbers, dates, and mixed-direction content remain readable and correctly ordered.

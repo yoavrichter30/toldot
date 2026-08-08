@@ -10,6 +10,32 @@ import { EventCard } from './EventCard';
 import { GameOverScreen } from './GameOverScreen';
 import { ErrorBanner, LoadingIndicator } from './Status';
 import { JournalView } from './JournalView';
+import { MapPanel } from './MapPanel';
+
+interface LocationInfo {
+  id: string;
+  name: string;
+  housing: number;
+  water: number;
+  health: number;
+  founded: number;
+  type: string;
+}
+
+const ERA_LOCATIONS: LocationInfo[] = [
+  { id: 'jaffa', name: 'Jaffa', housing: 80, water: 80, health: 60, founded: 0, type: 'port_city' },
+  { id: 'petah_tikva', name: 'Petah Tikva', housing: 50, water: 30, health: 35, founded: 1878, type: 'moshava' },
+  { id: 'rishon_lezion', name: 'Rishon LeZion', housing: 55, water: 40, health: 40, founded: 1882, type: 'moshava' },
+  { id: 'rehovot', name: 'Rehovot', housing: 45, water: 35, health: 40, founded: 1890, type: 'moshava' },
+  { id: 'zikhron_yaakov', name: "Zikhron Ya'akov", housing: 50, water: 35, health: 40, founded: 1882, type: 'moshava' },
+  { id: 'hadera', name: 'Hadera', housing: 30, water: 15, health: 20, founded: 1891, type: 'moshava' },
+  { id: 'kfar_saba', name: 'Kfar Saba', housing: 8, water: 5, health: 15, founded: 1903, type: 'moshava' },
+  { id: 'sejera', name: 'Sejera (Ilaniya)', housing: 25, water: 30, health: 35, founded: 1899, type: 'training_farm' },
+  { id: 'metulla', name: 'Metulla', housing: 25, water: 25, health: 30, founded: 1896, type: 'moshava' },
+  { id: 'kinneret_farm', name: 'Kinneret Farm', housing: 5, water: 10, health: 20, founded: 1908, type: 'training_farm' },
+  { id: 'degamia', name: 'Degania', housing: 0, water: 0, health: 0, founded: 1909, type: 'training_farm' },
+  { id: 'rosh_pinna', name: 'Rosh Pinna', housing: 40, water: 30, health: 35, founded: 1882, type: 'moshava' },
+];
 
 export function GameScreen() {
   const { state, dispatch } = useGame();
@@ -17,7 +43,21 @@ export function GameScreen() {
   const [events, setEvents] = useState<SpawnedEvent[]>([]);
   const [showJournal, setShowJournal] = useState(false);
   const [projectActionText, setProjectActionText] = useState('');
+  const [selectedLocation, setSelectedLocation] = useState<string | null>(null);
   const openingStarted = useRef(false);
+
+  const activeLocationIds: string[] = [];
+  if (state.state?.cohorts) {
+    for (const cohort of state.state.cohorts) {
+      if (cohort.assignedLocationId) {
+        activeLocationIds.push(cohort.assignedLocationId);
+      }
+    }
+  }
+
+  const handleLocationClick = (locationId: string) => {
+    setSelectedLocation((prev) => (prev === locationId ? null : locationId));
+  };
 
   const handleSend = async (action: string) => {
     if (!state.sessionId) return;
@@ -37,7 +77,7 @@ export function GameScreen() {
   };
 
   const handleEventChoice = (eventId: string, choiceKey: string) => {
-    setEvents(prev => prev.filter(ev => ev.id !== eventId));
+    setEvents((prev) => prev.filter((ev) => ev.id !== eventId));
     console.log(`Event ${eventId} resolved with choice: ${choiceKey}`);
   };
 
@@ -46,7 +86,7 @@ export function GameScreen() {
     if (state.sessionId && state.turn === 0) {
       openingStarted.current = true;
       getSession(state.sessionId)
-        .then(data => {
+        .then((data) => {
           if (data.session) {
             handleSend('The committee begins its work.');
           }
@@ -59,6 +99,14 @@ export function GameScreen() {
   }, [state.sessionId, state.turn]);
 
   if (state.gameOver) return <GameOverScreen />;
+
+  const selectedLocName = selectedLocation
+    ? ERA_LOCATIONS.find((l) => l.id === selectedLocation)?.name ?? null
+    : null;
+
+  const enhancedSuggestions = selectedLocName
+    ? [...suggestions, `Build housing in ${selectedLocName}`]
+    : suggestions;
 
   return (
     <div className="game">
@@ -82,42 +130,53 @@ export function GameScreen() {
         />
       )}
 
-      <div className="game-layout">
-        <main className="game-main">
-          <DMNarrative narration={state.narration} historicalNotes={state.historicalNotes} />
-          {events.map((ev, i) => (
-            <EventCard key={ev?.id ?? i} event={ev} onChoice={handleEventChoice} />
-          ))}
-          <div className="action-area">
-            <ActionInput
-              suggestions={suggestions}
-              onSend={handleSend}
-              disabled={state.loading}
-              externalAction={projectActionText}
-            />
-            {state.loading && <LoadingIndicator label="The DM is thinking\u2026" />}
-          </div>
-        </main>
+      <div className="game-layout game-layout-with-map">
+        <section className="game-map">
+          <MapPanel
+            locations={ERA_LOCATIONS}
+            onLocationClick={handleLocationClick}
+            selectedLocationId={selectedLocation}
+            activeLocationIds={activeLocationIds}
+          />
+        </section>
 
-        <aside className="game-side">
-          {state.state ? (
-            <>
-              <ResourcePanel
-                resources={state.state.resources}
-                foundationTracks={state.state.foundationTracks}
+        <div className="game-content">
+          <main className="game-main">
+            <DMNarrative narration={state.narration} historicalNotes={state.historicalNotes} />
+            {events.map((ev, i) => (
+              <EventCard key={ev?.id ?? i} event={ev} onChoice={handleEventChoice} />
+            ))}
+            <div className="action-area">
+              <ActionInput
+                suggestions={enhancedSuggestions}
+                onSend={handleSend}
+                disabled={state.loading}
+                externalAction={projectActionText}
               />
-              <CohortPanel cohorts={state.state.cohorts} />
-              <ProjectPanel
-                projects={state.state.projects}
-                onStartProject={(name) => setProjectActionText(`Start the ${name} project`)}
-              />
-            </>
-          ) : (
-            <div className="card skeleton-panel">
-              Resources will appear after the first turn.
+              {state.loading && <LoadingIndicator label="The DM is thinking\u2026" />}
             </div>
-          )}
-        </aside>
+          </main>
+
+          <aside className="game-side">
+            {state.state ? (
+              <>
+                <ResourcePanel
+                  resources={state.state.resources}
+                  foundationTracks={state.state.foundationTracks}
+                />
+                <CohortPanel cohorts={state.state.cohorts} />
+                <ProjectPanel
+                  projects={state.state.projects}
+                  onStartProject={(name) => setProjectActionText(`Start the ${name} project`)}
+                />
+              </>
+            ) : (
+              <div className="card skeleton-panel">
+                Resources will appear after the first turn.
+              </div>
+            )}
+          </aside>
+        </div>
       </div>
     </div>
   );

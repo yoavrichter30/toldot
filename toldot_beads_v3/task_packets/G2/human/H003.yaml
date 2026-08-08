@@ -1,0 +1,62 @@
+id: H003
+milestone: M05
+title: Create five location-type icons
+executor_profile: human_visual
+depends_on:
+- H001
+risk: low
+objective: Create a readable icon set for location types used on the strategic map.
+exact_instructions:
+- Create icons for old_yishuv_city, port_city, moshava, training_farm, and regional_town.
+- Use one consistent outline weight and a transparent background.
+- Deliver SVG masters and 64 px PNG previews.
+- Verify each icon remains distinguishable at 20 px.
+- Use original geometry; do not trace copyrighted game icons.
+acceptance_criteria:
+- Five SVG files and five 64 px PNG previews exist.
+- Icons are visually distinct at 20 px.
+- All SVGs have consistent viewBox dimensions.
+- No embedded raster images or external links exist.
+change_budget:
+  allowed_write_files:
+  - assets/ui/location_types/
+  max_changed_lines: 0
+  max_new_dependencies: 0
+  max_production_files: 10
+read_first:
+- docs/visual_direction.md
+validation:
+  level: manual
+  commands:
+  - find assets/ui/location_types -type f | sort
+  must_capture_exit_code: true
+  must_include_relevant_failure_lines: true
+forbidden:
+- Do not change scene files.
+stop_and_report_if:
+- The visual direction is not approved.
+required_response:
+  format: yaml
+  fields:
+  - task_id
+  - status
+  - summary
+  - files_changed
+  - acceptance_checklist
+  status_values:
+  - completed
+  - blocked
+  - failed
+  no_markdown_fences: true
+status: pending
+human_required: false
+human_category: asset_generation
+placeholder_allowed: true
+resolved_owner: human
+resolved_category: asset_generation
+resolved_owner_detail: human_visual
+beads:
+  id: toldot-h003
+  external_ref: H003
+  gate: G2
+  labels: []

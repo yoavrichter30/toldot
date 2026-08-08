@@ -1,0 +1,178 @@
+schema_version: '1.0'
+project:
+  name: Toldot
+  iteration: Yishuv Vertical Slice
+  engine: Godot 4.7.1 Standard
+  language: Typed GDScript
+  target_platforms:
+  - macOS
+  - Windows
+  development_style: OMP-orchestrated agentic development with small, testable tasks
+scenario:
+  recommended_start: '1904-01-01'
+  historical_frame: Opening of the Second Aliyah under late Ottoman rule
+  full_campaign_target: 1904-1914
+  first_iteration_window: 1904-1909
+  working_title: From Moshavot to Yishuv
+  player_role: A coordinating network of Yishuv institutions and settlement initiatives, not a sovereign state and
+    not a single historical person.
+  player_fantasy: Turn scattered, fragile communities into a connected and increasingly self-sustaining Hebrew public
+    society.
+  prototype_goal: Reach the end of 1909 with a sustainable settlement network, retain enough newcomers, establish
+    three foundational institutions, and complete the Ahuzat Bayit urban-neighborhood project.
+  loss_conditions:
+  - Yishuv treasury remains insolvent for six consecutive monthly ticks.
+  - Newcomer retention falls below the configured collapse threshold.
+  - Fewer than three settlements remain viable for six consecutive monthly ticks.
+design_pillars:
+- id: people_before_borders
+  rule: The map represents communities, routes, institutions, and influence—not territorial conquest.
+- id: aliyah_is_people
+  rule: Immigration arrives as cohorts with skills, needs, origins, and retention risk—not as a generic population
+    number.
+- id: foundations_not_statehood
+  rule: The player builds capabilities that may later support statehood without treating a state as already existing.
+- id: local_complexity
+  rule: Arab towns and villages, Ottoman authorities, the Old Yishuv, donors, workers, farmers, and religious communities
+    are represented as actors with interests rather than map obstacles.
+- id: historical_texture
+  rule: Hebrew language, Jewish calendar, agriculture, water, disease, letters, newspapers, philanthropy, labor
+    debates, and settlement forms produce the game's identity.
+- id: agent_safe
+  rule: Every feature is data-driven, deterministic where possible, validated headlessly, and implemented through
+    narrow file ownership.
+first_iteration_scope:
+  map_model: Node-and-route strategic map over a hand-drawn geographic background
+  active_locations:
+  - Jerusalem
+  - Jaffa
+  - Petah Tikva
+  - Rishon LeZion
+  - Rehovot
+  - Zikhron Ya'akov
+  - Hadera
+  - Rosh Pinna
+  - Safed
+  - Tiberias
+  - Sejera
+  - Metula
+  location_types:
+  - old_yishuv_city
+  - port_city
+  - moshava
+  - training_farm
+  - regional_town
+  core_resources:
+  - id: funds
+    meaning: Cash and credit available to the coordinating network.
+  - id: people
+    meaning: Available workers and households represented through cohorts.
+  - id: public_trust
+    meaning: Confidence among communities, workers, donors, and settlement committees.
+  - id: ottoman_tolerance
+    meaning: Administrative room to operate; not friendship or sovereignty.
+  foundation_tracks:
+  - settlement_viability
+  - economic_independence
+  - hebrew_public_life
+  - self_organization
+  core_player_actions:
+  - Assign an aliyah cohort to a location.
+  - Fund housing.
+  - Fund water or drainage work.
+  - Create an agricultural workplace.
+  - Create a school or Hebrew class.
+  - Request patron funding.
+  - Negotiate an Ottoman permit.
+  - Create a local committee.
+  - Connect two locations with a route or service.
+  - Launch the Ahuzat Bayit project when prerequisites are met.
+  simulation:
+    calendar: Daily clock; systems settle weekly or monthly.
+    time_controls:
+    - pause
+    - speed_1
+    - speed_2
+    - speed_3
+    determinism: All random outcomes use a seeded RandomNumberGenerator wrapper.
+    content_format: JSON runtime content with YAML used for OMP plans.
+  events:
+    target_count: 18
+    categories:
+    - aliyah_arrival
+    - health
+    - agriculture
+    - labor
+    - language
+    - donor
+    - ottoman_administration
+    - local_relations
+    - religious_calendar
+    - urban_growth
+  explicit_non_goals:
+  - No armies or tactical combat.
+  - No province ownership or border painting.
+  - No full diplomacy system.
+  - No character dynasty system.
+  - No detailed market simulation.
+  - No complete Ottoman Empire simulation.
+  - No complete Arab political simulation in the first slice.
+  - No First World War.
+  - No 1948 content.
+  - No multiplayer.
+  - No mod workshop.
+  - No procedural map.
+  - No LLM calls at runtime.
+unique_identity_features:
+- feature: Aliyah cohort cards
+  description: Each arrival has origin, household count, skills, ideology tags, health, preferred work, and a retention
+    meter.
+  iteration_priority: core
+- feature: Hebrew public-life track
+  description: Schools, signs, newspapers, meetings, and cultural projects gradually make Hebrew usable in everyday
+    public life.
+  iteration_priority: core
+- feature: Settlement forms
+  description: Moshava, collective farm experiment, urban neighborhood, and Old Yishuv community provide different
+    bonuses and tensions.
+  iteration_priority: core
+- feature: Patronage versus autonomy
+  description: Donor money can rescue a settlement but may impose crop choices, managers, or reduced local autonomy.
+  iteration_priority: core
+- feature: Water, malaria, and seasonal agriculture
+  description: Drainage, wells, heat, disease, orchards, grain, and harvest timing make the land materially present.
+  iteration_priority: core
+- feature: Jewish calendar atmosphere
+  description: Hebrew date display, holidays, and optional historically researched sabbatical-year events affect
+    rhythm and presentation.
+  iteration_priority: polish
+- feature: Letters and newspapers
+  description: Events appear as telegrams, committee minutes, donor letters, and newspaper headlines rather than
+    generic popups.
+  iteration_priority: polish
+- feature: Local relations
+  description: Employment, purchasing, water access, security incidents, and agreements with neighboring Arab communities
+    affect trust and costs.
+  iteration_priority: core_but_small
+- feature: Retention instead of raw growth
+  description: Many newcomers may leave when housing, health, work, or social support fail; success means keeping
+    people, not merely triggering arrivals.
+  iteration_priority: core
+- feature: Ahuzat Bayit finale
+  description: A multi-stage urban project near Jaffa serves as the prototype's visible capstone and tests prerequisites,
+    construction, and historical events.
+  iteration_priority: core
+definition_of_done:
+- A new player can complete a 25-45 minute run without developer commands.
+- The game begins on 1904-01-01 and ends no later than 1909-12-31.
+- Twelve locations are selectable and connected by validated routes.
+- At least four aliyah cohort templates can arrive.
+- The player can improve housing, water, work, health, education, and organization.
+- Retention responds visibly to living conditions and employment.
+- At least one donor offer creates a meaningful autonomy tradeoff.
+- At least one Ottoman permit decision changes what can be built.
+- At least one local-relations event has two non-caricatured outcomes.
+- The Ahuzat Bayit project can be completed or missed.
+- The campaign has explicit victory and loss states.
+- Save/load preserves deterministic state.
+- A headless 2,200-day simulation completes without invalid references, NaN values, or negative constrained resources.

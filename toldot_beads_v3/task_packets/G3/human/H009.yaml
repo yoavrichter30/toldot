@@ -1,0 +1,66 @@
+id: H009
+milestone: M07
+title: Approve historical content for the vertical slice
+executor_profile: human_history
+depends_on:
+- T088-Q12
+risk: high
+objective: Perform final human judgment on event wording, actor representation, uncertainty, and source linkage.
+exact_instructions:
+- Read all eighteen event entries and source notes.
+- Check that historical events, composites, and fictionalized replay events are clearly distinguished.
+- Check Jewish groups are internally diverse and Arab/Ottoman actors have concrete interests.
+- Check no exact demographic claim lacks a source.
+- Create correction tasks for rejected entries.
+acceptance_criteria:
+- Every event ID is marked approved, approved-with-note, or rejected.
+- Every rejected event has a correction task.
+- All source-note links resolve.
+- The review explicitly approves or rejects the event set for player testing.
+change_budget:
+  allowed_write_files:
+  - ops/reviews/historical_content_acceptance.md
+  max_changed_lines: 500
+  max_new_dependencies: 0
+  max_production_files: 1
+read_first:
+- docs/historical_style.md
+- research/events_1904_1909.md
+- content/source_notes/events.json
+- content/scenarios/yishuv_1904/events/
+validation:
+  level: manual
+  commands:
+  - test -f ops/reviews/historical_content_acceptance.md
+  must_capture_exit_code: true
+  must_include_relevant_failure_lines: true
+forbidden:
+- Do not silently edit event data during review.
+stop_and_report_if:
+- Source notes are missing or inaccessible.
+required_response:
+  format: yaml
+  fields:
+  - task_id
+  - status
+  - summary
+  - files_changed
+  - acceptance_checklist
+  - created_task_ids
+  status_values:
+  - completed
+  - blocked
+  - failed
+  no_markdown_fences: true
+status: pending
+human_required: true
+human_category: historical_approval
+placeholder_allowed: false
+resolved_owner: human
+resolved_category: historical_approval
+resolved_owner_detail: human_history
+beads:
+  id: toldot-h009
+  external_ref: H009
+  gate: G3
+  labels: []
