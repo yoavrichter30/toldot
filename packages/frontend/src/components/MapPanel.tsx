@@ -19,7 +19,7 @@ interface MapPanelProps {
 
 // Pin positions derived from pixel-analysis of the actual map: coast x≈192,
 // Kinneret ≈(602,228), Dead Sea ≈(583,953), mapped via real lat/lng.
-const DEFAULT_PIN_COORDS: Record<string, [number, number]> = {
+const PIN_COORDS: Record<string, [number, number]> = {
   metulla: [612, 20],
   rosh_pinna: [597, 120],
   kinneret_farm: [600, 262],
@@ -34,28 +34,6 @@ const DEFAULT_PIN_COORDS: Record<string, [number, number]> = {
   rehovot: [245, 732],
 };
 
-const STORAGE_KEY = 'toldot.pin-coords.v3';
-
-function loadPinCoords(): Record<string, [number, number]> {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return { ...DEFAULT_PIN_COORDS };
-    const parsed = JSON.parse(raw);
-    // Merge over defaults so newly-added locations still get a position
-    return { ...DEFAULT_PIN_COORDS, ...parsed };
-  } catch {
-    return { ...DEFAULT_PIN_COORDS };
-  }
-}
-
-function savePinCoords(coords: Record<string, [number, number]>) {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(coords));
-  } catch {
-    // ignore persistence failures (private browsing, etc.)
-  }
-}
-
 export function MapPanel({
   locations,
   onLocationClick,
@@ -65,16 +43,13 @@ export function MapPanel({
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [viewBox, setViewBox] = useState({ x: 0, y: 0, w: 900, h: 1200 });
   const [isPanning, setIsPanning] = useState(false);
-  const [pinCoords, setPinCoords] = useState<Record<string, [number, number]>>(loadPinCoords);
 
   const panStart = useRef({ x: 0, y: 0, vx: 0, vy: 0 });
-  const drag = useRef<{ id: string; moved: boolean } | null>(null);
   const svgRef = useRef<SVGSVGElement>(null);
 
   const selectedLoc = locations.find((l) => l.id === selectedLocationId);
   const showDetail = selectedLocationId && selectedLoc;
 
-  // Convert a client (mouse) coordinate into SVG viewBox coordinates
   const clientToSvg = useCallback(
     (clientX: number, clientY: number): [number, number] => {
       const svg = svgRef.current;
@@ -112,7 +87,6 @@ export function MapPanel({
 
   const handleMouseDown = useCallback(
     (e: React.MouseEvent) => {
-      // Left-click on the map background pans; pin drags are handled on the pins
       if (e.button === 0) {
         setIsPanning(true);
         panStart.current = { x: e.clientX, y: e.clientY, vx: viewBox.x, vy: viewBox.y };
@@ -123,14 +97,6 @@ export function MapPanel({
 
   const handleMouseMove = useCallback(
     (e: React.MouseEvent) => {
-      if (drag.current) {
-        // Dragging a pin — update its position live
-        const [x, y] = clientToSvg(e.clientX, e.clientY);
-        const id = drag.current.id;
-        drag.current.moved = true;
-        setPinCoords((prev) => ({ ...prev, [id]: [Math.round(x), Math.round(y)] }));
-        return;
-      }
       if (!isPanning) return;
       const svg = svgRef.current;
       if (!svg) return;
@@ -143,42 +109,11 @@ export function MapPanel({
         y: Math.max(0, Math.min(1200 - prev.h, panStart.current.vy - dy)),
       }));
     },
-    [isPanning, viewBox.w, viewBox.h, clientToSvg],
+    [isPanning, viewBox.w, viewBox.h],
   );
 
-  const handleMouseUp = useCallback(() => {
-    if (drag.current) {
-      savePinCoords(pinCoords);
-      drag.current = null;
-    }
-    setIsPanning(false);
-  }, [pinCoords]);
-
-  const handleMouseLeave = useCallback(() => {
-    setIsPanning(false);
-    drag.current = null;
-  }, []);
-
-  const handlePinPointerDown = (e: React.PointerEvent, id: string) => {
-    e.stopPropagation();
-    drag.current = { id, moved: false };
-  };
-
-  const handlePinClick = (e: React.MouseEvent, id: string) => {
-    e.stopPropagation();
-    // Ignore clicks that were actually pin drags
-    if (drag.current?.moved) return;
-    onLocationClick(id);
-  };
-
-  const resetPins = () => {
-    setPinCoords({ ...DEFAULT_PIN_COORDS });
-    try {
-      localStorage.removeItem(STORAGE_KEY);
-    } catch {
-      // ignore
-    }
-  };
+  const handleMouseUp = useCallback(() => setIsPanning(false), []);
+  const handleMouseLeave = useCallback(() => setIsPanning(false), []);
 
   return (
     <div className="map-panel">
@@ -209,7 +144,7 @@ export function MapPanel({
 
         {/* Settlement pins */}
         {locations.map((loc) => {
-          const coord = pinCoords[loc.id];
+          const coord = PIN_COORDS[loc.id];
           if (!coord) return null;
           const [x, y] = coord;
           const isSelected = loc.id === selectedLocationId;
@@ -221,8 +156,7 @@ export function MapPanel({
             <g
               key={loc.id}
               className={`map-pin ${isSelected ? 'selected' : ''} ${isActive ? 'active' : ''}`}
-              onClick={(e) => handlePinClick(e, loc.id)}
-              onPointerDown={(e) => handlePinPointerDown(e, loc.id)}
+              onClick={(e) => { e.stopPropagation(); onLocationClick(loc.id); }}
               onMouseEnter={() => setHoveredId(loc.id)}
               onMouseLeave={() => setHoveredId(null)}
               style={{ cursor: 'pointer' }}
@@ -257,17 +191,11 @@ export function MapPanel({
           );
         })}
 
-        {/* Reset pins control */}
-        <g transform={`translate(10, ${viewBox.y + viewBox.h - 42})`} onClick={(e) => { e.stopPropagation(); resetPins(); }} style={{ cursor: 'pointer' }}>
-          <rect x={0} y={0} width={70} height={20} rx={3} fill="#2a2218" stroke="#4a3f30" strokeWidth={0.5} opacity={0.85} />
-          <text x={35} y={14} textAnchor="middle" fontSize={9} fill="#a89880" fontFamily="'Heebo',sans-serif">Reset pins</text>
-        </g>
-
-        {/* Zoom indicator */}
+        {/* Zoom/pan hint */}
         <g transform={`translate(8, ${viewBox.y + 20})`} pointerEvents="none">
-          <rect x={0} y={0} width={150} height={18} rx={3} fill="#2a2218" opacity={0.6} />
-          <text x={75} y={13} textAnchor="middle" fontSize={8} fill="#a89880" fontFamily="'Heebo',sans-serif">
-            Drag pins to move · Scroll to zoom · Drag to pan
+          <rect x={0} y={0} width={120} height={18} rx={3} fill="#2a2218" opacity={0.6} />
+          <text x={60} y={13} textAnchor="middle" fontSize={8} fill="#a89880" fontFamily="'Heebo',sans-serif">
+            Scroll to zoom · Drag to pan
           </text>
         </g>
       </svg>
