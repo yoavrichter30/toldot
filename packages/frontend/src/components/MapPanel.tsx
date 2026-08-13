@@ -17,24 +17,24 @@ interface MapPanelProps {
   activeLocationIds: string[];
 }
 
-// Pin positions computed from real lat/lng mapped onto the 900x1200 canvas.
-// Geographic bounds: 33.40°N (top) → 31.30°N (bottom), 34.70°E (coast) → 35.62°E (Jordan).
+// Pin positions derived from pixel-analysis of the actual map: coast x≈192,
+// Kinneret ≈(602,228), Dead Sea ≈(583,953), mapped via real lat/lng.
 const DEFAULT_PIN_COORDS: Record<string, [number, number]> = {
-  metulla: [557, 104],
-  rosh_pinna: [540, 269],
-  kinneret_farm: [557, 408],
-  degamia: [557, 413],
-  sejera: [460, 403],
-  zikhron_yaakov: [203, 483],
-  hadera: [174, 552],
-  kfar_saba: [180, 691],
-  petah_tikva: [157, 744],
-  jaffa: [89, 760],
-  rishon_lezion: [111, 803],
-  rehovot: [123, 845],
+  metulla: [612, 20],
+  rosh_pinna: [597, 120],
+  kinneret_farm: [600, 262],
+  degamia: [618, 290],
+  sejera: [530, 262],
+  zikhron_yaakov: [313, 347],
+  hadera: [288, 421],
+  kfar_saba: [293, 568],
+  petah_tikva: [274, 624],
+  jaffa: [216, 641],
+  rishon_lezion: [235, 687],
+  rehovot: [245, 732],
 };
 
-const STORAGE_KEY = 'toldot.pin-coords.v2';
+const STORAGE_KEY = 'toldot.pin-coords.v3';
 
 function loadPinCoords(): Record<string, [number, number]> {
   try {
