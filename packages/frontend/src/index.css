@@ -762,7 +762,10 @@ p {
    ============================================================ */
 
 .game-layout-with-map {
-  grid-template-columns: 60% 40%;
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+  gap: 1rem;
+  align-items: start;
 }
 
 .game-map {
@@ -776,14 +779,20 @@ p {
   overflow: hidden;
   background: #f5e6c8;
   box-shadow: var(--shadow);
+  height: min(calc(100vh - 9rem), 900px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .map-svg {
   display: block;
   width: 100%;
-  height: auto;
+  height: 100%;
   user-select: none;
 }
+
+
 
 .map-pin text {
   pointer-events: none;
@@ -1192,13 +1201,51 @@ p {
   padding-top: 0.5rem;
 }
 
-@media (max-width: 720px) {
+/* Tablet: stack map above panels */
+@media (max-width: 1024px) {
   .game-layout-with-map {
     grid-template-columns: 1fr;
+  }
+
+  .map-panel {
+    height: auto;
+    max-height: 55vh;
+  }
+
+  .map-svg {
+    height: auto;
+    max-height: 55vh;
   }
 
   .game-content {
     max-height: none;
     overflow-y: visible;
+  }
+}
+
+/* Mobile */
+@media (max-width: 720px) {
+  .game {
+    padding: 0.75rem;
+  }
+
+  .game-header {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .map-panel {
+    max-height: 48vh;
+  }
+
+  .map-svg {
+    max-height: 48vh;
+  }
+
+  .location-detail {
+    left: 0.5rem;
+    right: 0.5rem;
+    bottom: 0.5rem;
+    width: auto;
   }
 }
