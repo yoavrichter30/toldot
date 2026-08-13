@@ -1,13 +1,21 @@
 import React, { createContext, useContext, useReducer, ReactNode } from 'react';
 import { TurnResponse, SpawnedEvent, SessionData } from '../api/game';
 
+export interface ChatMessage {
+  id: string;
+  role: 'dm' | 'player';
+  text: string;
+  notes?: string[];
+  events?: SpawnedEvent[];
+}
+
 interface GameState {
   sessionId: string | null;
   eraId: string | null;
   turn: number;
   maxTurns: number;
   date: string;
-  narration: string;
+  messages: ChatMessage[];
   historicalNotes: string[];
   journalNotes: string[];
   events: SpawnedEvent[];
@@ -23,6 +31,7 @@ interface GameState {
 type GameAction =
   | { type: 'NEW_SESSION'; sessionId: string; eraId: string }
   | { type: 'SET_TURN'; data: TurnResponse }
+  | { type: 'ADD_MESSAGE'; message: ChatMessage }
   | { type: 'SET_LOADING'; loading: boolean }
   | { type: 'SET_ERROR'; error: string | null }
   | { type: 'LOAD_SESSION'; session: SessionData };
@@ -33,7 +42,7 @@ const initialState: GameState = {
   turn: 0,
   maxTurns: 126,
   date: '',
-  narration: '',
+  messages: [],
   historicalNotes: [],
   journalNotes: [],
   events: [],
@@ -57,16 +66,24 @@ function gameReducer(state: GameState, action: GameAction): GameState {
         gameOver: false,
         grade: undefined,
         journalNotes: [],
+        messages: [],
         goal: '',
         objectives: [],
       };
-    case 'SET_TURN':
+    case 'SET_TURN': {
+      const dmMessage: ChatMessage = {
+        id: `dm-${action.data.turn}`,
+        role: 'dm',
+        text: action.data.narration,
+        notes: action.data.historicalNotes,
+        events: action.data.events,
+      };
       return {
         ...state,
         turn: action.data.turn,
         maxTurns: action.data.maxTurns,
         date: action.data.date,
-        narration: action.data.narration,
+        messages: [...state.messages, dmMessage],
         historicalNotes: action.data.historicalNotes,
         journalNotes: [...state.journalNotes, ...action.data.historicalNotes],
         events: action.data.events,
@@ -78,6 +95,9 @@ function gameReducer(state: GameState, action: GameAction): GameState {
         loading: false,
         error: null,
       };
+    }
+    case 'ADD_MESSAGE':
+      return { ...state, messages: [...state.messages, action.message] };
     case 'LOAD_SESSION': {
       const session = action.session;
       const finished = session.status !== 'active';
@@ -90,6 +110,7 @@ function gameReducer(state: GameState, action: GameAction): GameState {
         state: session.state,
         events: [],
         journalNotes: [],
+        messages: [],
         gameOver: finished,
         grade: finished ? session.status : undefined,
         loading: false,

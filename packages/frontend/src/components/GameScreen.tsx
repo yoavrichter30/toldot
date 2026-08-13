@@ -1,17 +1,17 @@
 import { useEffect, useRef, useState } from 'react';
 import { useGame } from '../context/GameContext';
-import { processTurn, SpawnedEvent } from '../api/game';
-import { DMNarrative } from './DMNarrative';
+import { processTurn } from '../api/game';
+import { ChatThread } from './ChatThread';
+import { MetricsBar } from './MetricsBar';
+import { ActionInput } from './ActionInput';
+import { ObjectivesPanel } from './ObjectivesPanel';
 import { ResourcePanel } from './ResourcePanel';
 import { CohortPanel } from './CohortPanel';
 import { ProjectPanel } from './ProjectPanel';
-import { ActionInput } from './ActionInput';
-import { EventCard } from './EventCard';
 import { GameOverScreen } from './GameOverScreen';
-import { ErrorBanner, LoadingIndicator } from './Status';
+import { ErrorBanner } from './Status';
 import { JournalView } from './JournalView';
 import { MapPanel } from './MapPanel';
-import { ObjectivesPanel } from './ObjectivesPanel';
 
 interface LocationInfo {
   id: string;
@@ -40,19 +40,17 @@ const ERA_LOCATIONS: LocationInfo[] = [
 
 export function GameScreen() {
   const { state, dispatch } = useGame();
-  const [suggestions, setSuggestions] = useState<string[]>([]);
-  const [events, setEvents] = useState<SpawnedEvent[]>([]);
-  const [showJournal, setShowJournal] = useState(false);
-  const [projectActionText, setProjectActionText] = useState('');
   const [selectedLocation, setSelectedLocation] = useState<string | null>(null);
+  const [showJournal, setShowJournal] = useState(false);
+  const [showMission, setShowMission] = useState(true);
+  const [showLedger, setShowLedger] = useState(false);
+  const [projectActionText, setProjectActionText] = useState('');
   const openingStarted = useRef(false);
 
   const activeLocationIds: string[] = [];
   if (state.state?.cohorts) {
     for (const cohort of state.state.cohorts) {
-      if (cohort.assignedLocationId) {
-        activeLocationIds.push(cohort.assignedLocationId);
-      }
+      if (cohort.assignedLocationId) activeLocationIds.push(cohort.assignedLocationId);
     }
   }
 
@@ -64,36 +62,32 @@ export function GameScreen() {
     if (openingStarted.current) return;
     if (state.sessionId && state.turn === 0) {
       openingStarted.current = true;
-      // Start the first turn directly
-      handleSendEffect('The committee begins its work.');
+      handleSendEffect('The committee gathers for its first session.');
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.sessionId]);
 
-  // Separate function for use in effect to avoid stale closure
   const handleSendEffect = async (action: string) => {
     const sid = state.sessionId;
     if (!sid) return;
     setProjectActionText('');
+    dispatch({
+      type: 'ADD_MESSAGE',
+      message: { id: `player-${Date.now()}`, role: 'player', text: action },
+    });
     dispatch({ type: 'SET_LOADING', loading: true });
     try {
       const result = await processTurn(sid, action);
       dispatch({ type: 'SET_TURN', data: result });
-      setSuggestions(
-        result.historicalNotes.length > 0 ? ['What would you like to know more about?'] : [],
-      );
-      setEvents(result.events || []);
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Failed to start game';
+      const message = err instanceof Error ? err.message : 'Failed to process turn';
       dispatch({ type: 'SET_ERROR', error: message });
-      openingStarted.current = false;
     }
   };
 
   const handleEventChoice = (eventId: string, choiceKey: string) => {
-    const ev = events.find((e) => e.id === eventId);
+    const ev = state.events.find((e) => e.id === eventId);
     const choice = ev?.choices?.find((c) => c.key === choiceKey);
-    setEvents((prev) => prev.filter((e) => e.id !== eventId));
     if (choice) {
       handleSendEffect(`I choose: ${choice.label}`);
     }
@@ -101,12 +95,6 @@ export function GameScreen() {
 
   if (state.gameOver) return <GameOverScreen />;
 
-  const selectedLocName = selectedLocation
-    ? ERA_LOCATIONS.find((l) => l.id === selectedLocation)?.name ?? null
-    : null;
-
-  // Merge static location metadata with live game-state values so the map
-  // and detail panel reflect current housing/water/health.
   const mapLocations = ERA_LOCATIONS.map((loc) => {
     const live = state.state?.locations.find((l) => l.id === loc.id);
     return {
@@ -117,20 +105,29 @@ export function GameScreen() {
     };
   });
 
-  const enhancedSuggestions = selectedLocName
-    ? [...suggestions, `Build housing in ${selectedLocName}`]
-    : suggestions;
+  const selectedLocName = selectedLocation
+    ? ERA_LOCATIONS.find((l) => l.id === selectedLocation)?.name ?? null
+    : null;
+
+  const suggestions = selectedLocName ? [`Build housing in ${selectedLocName}`] : [];
 
   return (
     <div className="game">
       <header className="game-header">
         <h2>Toldot</h2>
         <div className="turn-info">
+          <button className="btn btn-ghost" onClick={() => setShowMission((v) => !v)}>
+            🎯 Mission
+          </button>
+          <button className="btn btn-ghost" onClick={() => setShowLedger((v) => !v)}>
+            📊 Ledger
+          </button>
           <button className="btn btn-ghost" onClick={() => setShowJournal(true)}>
             📜 Journal
           </button>
-          &nbsp;
-          Round {state.turn}/{state.maxTurns} &middot; {state.date}
+          <span className="round-indicator">
+            Round {state.turn}/{state.maxTurns} · {state.date}
+          </span>
         </div>
       </header>
 
@@ -153,24 +150,15 @@ export function GameScreen() {
           />
         </section>
 
-        <div className="game-content">
-          <main className="game-main">
-            <DMNarrative narration={state.narration} historicalNotes={state.historicalNotes} />
-            {events.map((ev, i) => (
-              <EventCard key={ev?.id ?? i} event={ev} onChoice={handleEventChoice} />
-            ))}
-            <div className="action-area">
-              <ActionInput
-                suggestions={enhancedSuggestions}
-                onSend={handleSendEffect}
-                disabled={state.loading}
-                externalAction={projectActionText}
-              />
-              {state.loading && <LoadingIndicator label="The DM is thinking\u2026" />}
-            </div>
-          </main>
+        <div className="game-chat">
+          {state.state && (
+            <MetricsBar
+              resources={state.state.resources}
+              foundationTracks={state.state.foundationTracks}
+            />
+          )}
 
-          <aside className="game-side">
+          {showMission && (
             <ObjectivesPanel
               goal={state.goal}
               objectives={state.objectives}
@@ -178,24 +166,37 @@ export function GameScreen() {
               maxTurns={state.maxTurns}
               date={state.date}
             />
-            {state.state ? (
-              <>
-                <ResourcePanel
-                  resources={state.state.resources}
-                  foundationTracks={state.state.foundationTracks}
-                />
-                <CohortPanel cohorts={state.state.cohorts} />
-                <ProjectPanel
-                  projects={state.state.projects}
-                  onStartProject={(name) => setProjectActionText(`Start the ${name} project`)}
-                />
-              </>
-            ) : (
-              <div className="card skeleton-panel">
-                Resources will appear after the first turn.
-              </div>
-            )}
-          </aside>
+          )}
+
+          <ChatThread
+            messages={state.messages}
+            pendingEvents={state.events}
+            loading={state.loading}
+            onChoice={handleEventChoice}
+          />
+
+          {showLedger && state.state && (
+            <div className="ledger-panel">
+              <ResourcePanel
+                resources={state.state.resources}
+                foundationTracks={state.state.foundationTracks}
+              />
+              <CohortPanel cohorts={state.state.cohorts} />
+              <ProjectPanel
+                projects={state.state.projects}
+                onStartProject={(name) => setProjectActionText(`Start the ${name} project`)}
+              />
+            </div>
+          )}
+
+          <div className="chat-input-area">
+            <ActionInput
+              suggestions={suggestions}
+              onSend={handleSendEffect}
+              disabled={state.loading}
+              externalAction={projectActionText}
+            />
+          </div>
         </div>
       </div>
     </div>
