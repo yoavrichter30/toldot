@@ -4,7 +4,7 @@
       "id": "hapoel_hatzair_founded",
       "title": "Hapoel Hatza'ir Founded",
       "trigger_date": "1905-10-01",
-      "description": "A group of Jewish workers in Petah Tikva has founded Hapoel Hatza'ir ('The Young Worker'), the first Labor Zionist party in Ottoman Palestine. They advocate for Hebrew labor, workers' rights, and cooperative settlement. The movement is gaining traction among the new wave of idealistic immigrants arriving in Jaffa and the emerging agricultural settlements.",
+      "description": "A group of Jewish workers in Petah Tikva has founded Hapoel Hatza'ir ('The Young Worker'), the first Labor Zionist party in the Land of Israel. They advocate for Hebrew labor, workers' rights, and cooperative settlement. The movement is gaining traction among the new wave of idealistic immigrants arriving in Jaffa and the emerging agricultural settlements.",
       "choices": [
         {
           "label": "Support the labor movement with funds and resources",
@@ -58,7 +58,7 @@
       "id": "degania_founded",
       "title": "Degania — First Kvutza Founded",
       "trigger_date": "1909-10-01",
-      "description": "A small group of pioneers has established Degania, the first kvutza (communal settlement), on the southern shore of the Sea of Galilee. They have received land from the Jewish National Fund and intend to farm it collectively — sharing all resources, labor, and produce equally. This experimental model could reshape the future of Jewish settlement in Palestine.",
+      "description": "A small group of pioneers has established Degania, the first kvutza (communal settlement), on the southern shore of the Sea of Galilee. They have received land from the Jewish National Fund and intend to farm it collectively — sharing all resources, labor, and produce equally. This experimental model could reshape the future of Jewish settlement in the Land of Israel.",
       "choices": [
         {
           "label": "Provide resources, tools, and an experienced agronomist",

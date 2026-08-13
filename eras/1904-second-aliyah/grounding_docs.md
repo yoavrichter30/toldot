@@ -1,7 +1,7 @@
-## Ottoman Palestine (1904-1914)
+## The Land of Israel under Ottoman rule (1904-1914)
 The region was part of the Ottoman Empire, divided into the Vilayet of Beirut
 and the Mutasarrifate of Jerusalem. The Ottoman government in Constantinople
-was wary of Zionist immigration and land purchases, imposing restrictions
+was wary of Jewish immigration and land purchases, imposing restrictions
 while generally tolerating the existing Jewish communities.
 
 ## The Second Aliyah (1904-1914)
@@ -13,7 +13,7 @@ founded Hashomer (the guard organization), and created the first political
 parties of the labor movement.
 
 ## Key figures
-- **Arthur Ruppin**: Head of the Palestine Office of the Zionist Organization
+- **Arthur Ruppin**: Head of the Zionist Organization's Land of Israel office
 - **David Ben-Gurion**: Young worker, later first Prime Minister of Israel
 - **Yitzhak Ben-Zvi**: Historian, later second President of Israel
 - **Berl Katznelson**: Labor movement leader and intellectual
