@@ -17,20 +17,42 @@ interface MapPanelProps {
   activeLocationIds: string[];
 }
 
-const PIN_COORDS: Record<string, [number, number]> = {
-  metulla:        [642, 132],
-  rosh_pinna:     [624, 318],
-  kinneret_farm:  [642, 474],
-  degamia:        [642, 480],
-  sejera:         [540, 468],
+const DEFAULT_PIN_COORDS: Record<string, [number, number]> = {
+  metulla: [642, 132],
+  rosh_pinna: [624, 318],
+  kinneret_farm: [642, 474],
+  degamia: [642, 480],
+  sejera: [540, 468],
   zikhron_yaakov: [270, 558],
-  hadera:         [240, 636],
-  kfar_saba:      [246, 792],
-  petah_tikva:    [222, 852],
-  jaffa:          [150, 870],
-  rishon_lezion:  [174, 918],
-  rehovot:        [186, 966],
+  hadera: [240, 636],
+  kfar_saba: [246, 792],
+  petah_tikva: [222, 852],
+  jaffa: [150, 870],
+  rishon_lezion: [174, 918],
+  rehovot: [186, 966],
 };
+
+const STORAGE_KEY = 'toldot.pin-coords';
+
+function loadPinCoords(): Record<string, [number, number]> {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return { ...DEFAULT_PIN_COORDS };
+    const parsed = JSON.parse(raw);
+    // Merge over defaults so newly-added locations still get a position
+    return { ...DEFAULT_PIN_COORDS, ...parsed };
+  } catch {
+    return { ...DEFAULT_PIN_COORDS };
+  }
+}
+
+function savePinCoords(coords: Record<string, [number, number]>) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(coords));
+  } catch {
+    // ignore persistence failures (private browsing, etc.)
+  }
+}
 
 export function MapPanel({
   locations,
@@ -41,69 +63,120 @@ export function MapPanel({
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [viewBox, setViewBox] = useState({ x: 0, y: 0, w: 900, h: 1200 });
   const [isPanning, setIsPanning] = useState(false);
-  const [clickCoords, setClickCoords] = useState<string | null>(null);
+  const [pinCoords, setPinCoords] = useState<Record<string, [number, number]>>(loadPinCoords);
+
   const panStart = useRef({ x: 0, y: 0, vx: 0, vy: 0 });
+  const drag = useRef<{ id: string; moved: boolean } | null>(null);
   const svgRef = useRef<SVGSVGElement>(null);
 
   const selectedLoc = locations.find((l) => l.id === selectedLocationId);
   const showDetail = selectedLocationId && selectedLoc;
 
+  // Convert a client (mouse) coordinate into SVG viewBox coordinates
+  const clientToSvg = useCallback(
+    (clientX: number, clientY: number): [number, number] => {
+      const svg = svgRef.current;
+      if (!svg) return [0, 0];
+      const rect = svg.getBoundingClientRect();
+      const x = ((clientX - rect.left) / rect.width) * viewBox.w + viewBox.x;
+      const y = ((clientY - rect.top) / rect.height) * viewBox.h + viewBox.y;
+      return [x, y];
+    },
+    [viewBox],
+  );
+
   const clampViewBox = useCallback((vb: typeof viewBox) => {
-    // prevent zoom out beyond 100%
-    const maxW = 900, maxH = 1200;
     const minW = 150, minH = 200;
-    const w = Math.max(minW, Math.min(maxW, vb.w));
-    const h = Math.max(minH, Math.min(maxH, vb.h));
-    // clamp pan so we stay within the map
-    const x = Math.max(0, Math.min(maxW - w, vb.x));
-    const y = Math.max(0, Math.min(maxH - h, vb.y));
+    const w = Math.max(minW, Math.min(900, vb.w));
+    const h = Math.max(minH, Math.min(1200, vb.h));
+    const x = Math.max(0, Math.min(900 - w, vb.x));
+    const y = Math.max(0, Math.min(1200 - h, vb.y));
     return { x, y, w, h };
   }, []);
 
-  const handleWheel = useCallback((e: React.WheelEvent) => {
-    e.preventDefault();
-    const factor = e.deltaY > 0 ? 1.15 : 0.85;
-    const svg = svgRef.current;
-    if (!svg) return;
-    const rect = svg.getBoundingClientRect();
-    const mx = ((e.clientX - rect.left) / rect.width) * viewBox.w + viewBox.x;
-    const my = ((e.clientY - rect.top) / rect.height) * viewBox.h + viewBox.y;
-    const nw = viewBox.w * factor;
-    const nh = viewBox.h * factor;
-    const nx = mx - (mx - viewBox.x) * (nw / viewBox.w);
-    const ny = my - (my - viewBox.y) * (nh / viewBox.h);
-    setViewBox(clampViewBox({ x: nx, y: ny, w: nw, h: nh }));
-  }, [viewBox, clampViewBox]);
+  const handleWheel = useCallback(
+    (e: React.WheelEvent) => {
+      e.preventDefault();
+      const factor = e.deltaY > 0 ? 1.15 : 0.85;
+      const [mx, my] = clientToSvg(e.clientX, e.clientY);
+      const nw = viewBox.w * factor;
+      const nh = viewBox.h * factor;
+      const nx = mx - (mx - viewBox.x) * (nw / viewBox.w);
+      const ny = my - (my - viewBox.y) * (nh / viewBox.h);
+      setViewBox(clampViewBox({ x: nx, y: ny, w: nw, h: nh }));
+    },
+    [viewBox, clampViewBox, clientToSvg],
+  );
 
-  const handleMouseDown = useCallback((e: React.MouseEvent) => {
-    // Left click starts panning (pin clicks use stopPropagation so they won't reach here)
-    if (e.button === 0) {
-      setIsPanning(true);
-      panStart.current = { x: e.clientX, y: e.clientY, vx: viewBox.x, vy: viewBox.y };
+  const handleMouseDown = useCallback(
+    (e: React.MouseEvent) => {
+      // Left-click on the map background pans; pin drags are handled on the pins
+      if (e.button === 0) {
+        setIsPanning(true);
+        panStart.current = { x: e.clientX, y: e.clientY, vx: viewBox.x, vy: viewBox.y };
+      }
+    },
+    [viewBox],
+  );
+
+  const handleMouseMove = useCallback(
+    (e: React.MouseEvent) => {
+      if (drag.current) {
+        // Dragging a pin — update its position live
+        const [x, y] = clientToSvg(e.clientX, e.clientY);
+        const id = drag.current.id;
+        drag.current.moved = true;
+        setPinCoords((prev) => ({ ...prev, [id]: [Math.round(x), Math.round(y)] }));
+        return;
+      }
+      if (!isPanning) return;
+      const svg = svgRef.current;
+      if (!svg) return;
+      const rect = svg.getBoundingClientRect();
+      const dx = ((e.clientX - panStart.current.x) / rect.width) * viewBox.w;
+      const dy = ((e.clientY - panStart.current.y) / rect.height) * viewBox.h;
+      setViewBox((prev) => ({
+        ...prev,
+        x: Math.max(0, Math.min(900 - prev.w, panStart.current.vx - dx)),
+        y: Math.max(0, Math.min(1200 - prev.h, panStart.current.vy - dy)),
+      }));
+    },
+    [isPanning, viewBox.w, viewBox.h, clientToSvg],
+  );
+
+  const handleMouseUp = useCallback(() => {
+    if (drag.current) {
+      savePinCoords(pinCoords);
+      drag.current = null;
     }
-  }, [viewBox]);
+    setIsPanning(false);
+  }, [pinCoords]);
 
-  const handleMouseMove = useCallback((e: React.MouseEvent) => {
-    if (!isPanning) return;
-    const svg = svgRef.current;
-    if (!svg) return;
-    const rect = svg.getBoundingClientRect();
-    const dx = ((e.clientX - panStart.current.x) / rect.width) * viewBox.w;
-    const dy = ((e.clientY - panStart.current.y) / rect.height) * viewBox.h;
-    const nx = panStart.current.vx - dx;
-    const ny = panStart.current.vy - dy;
-    // Clamp to prevent dragging past map edges
-    const maxX = Math.max(0, viewBox.w);
-    const maxY = Math.max(0, viewBox.h);
-    setViewBox(prev => ({
-      ...prev,
-      x: Math.max(0, Math.min(900 - prev.w, nx)),
-      y: Math.max(0, Math.min(1200 - prev.h, ny)),
-    }));
-  }, [isPanning, viewBox.w, viewBox.h]);
+  const handleMouseLeave = useCallback(() => {
+    setIsPanning(false);
+    drag.current = null;
+  }, []);
 
-  const handleMouseUp = useCallback(() => setIsPanning(false), []);
-  const handleMouseLeave = useCallback(() => setIsPanning(false), []);
+  const handlePinPointerDown = (e: React.PointerEvent, id: string) => {
+    e.stopPropagation();
+    drag.current = { id, moved: false };
+  };
+
+  const handlePinClick = (e: React.MouseEvent, id: string) => {
+    e.stopPropagation();
+    // Ignore clicks that were actually pin drags
+    if (drag.current?.moved) return;
+    onLocationClick(id);
+  };
+
+  const resetPins = () => {
+    setPinCoords({ ...DEFAULT_PIN_COORDS });
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+    } catch {
+      // ignore
+    }
+  };
 
   return (
     <div className="map-panel">
@@ -132,55 +205,9 @@ export function MapPanel({
 
         <image href="/assets/map.svg" x={0} y={0} width={900} height={1200} preserveAspectRatio="xMidYMid meet" />
 
-        {/* Coordinate picker overlay — click map to see x,y coordinates */}
-        <rect x={0} y={0} width={900} height={1200} fill="transparent" onClick={(e) => {
-          const rect = svgRef.current?.getBoundingClientRect();
-          if (!rect) return;
-          const x = (e.clientX - rect.left) / rect.width * viewBox.w + viewBox.x;
-          const y = (e.clientY - rect.top) / rect.height * viewBox.h + viewBox.y;
-          setClickCoords(`${Math.round(x)}, ${Math.round(y)}`);
-          setTimeout(() => setClickCoords(null), 5000);
-        }} style={{ cursor: isPanning ? 'grabbing' : 'crosshair' }} />
-
-        {/* Coord display */}
-        {clickCoords && (
-          <g transform={`translate(10, ${viewBox.y + viewBox.h - 40})`}>
-            <rect x={0} y={0} width={130} height={22} rx={3} fill="#2a2218" stroke="#d4a73a" strokeWidth={1} opacity={0.9} />
-            <text x={65} y={15} textAnchor="middle" fontSize={10} fill="#d4a73a" fontFamily="monospace">[{clickCoords}]</text>
-          </g>
-        )}
-
-        {/* Title */}
-        <g>
-          <rect x={260} y={15} width={380} height={50} rx={6} fill="#f2e4c8" stroke="#c4a35a" strokeWidth={1} opacity={0.85} />
-          <text x={450} y={40} textAnchor="middle" fontSize={18} fontWeight="bold" fill="#5a3a1a" fontFamily="'Palatino','Georgia',serif" letterSpacing={3}>Eretz Yisrael</text>
-          <text x={450} y={55} textAnchor="middle" fontSize={9} fill="#8a6a3a" fontFamily="'Palatino','Georgia',serif" letterSpacing={2} opacity={0.8}>New Yishuv Settlements 1882–1914</text>
-        </g>
-
-        {/* Zoom indicator */}
-        <g transform={`translate(8, ${viewBox.y + viewBox.h - 65})`}>
-          <rect x={0} y={0} width={75} height={20} rx={3} fill="#2a2218" stroke="#4a3f30" strokeWidth={0.5} opacity={0.8} />
-          <text x={37} y={14} textAnchor="middle" fontSize={9} fill="#a89880" fontFamily="'Helvetica',sans-serif">{Math.round(100 * 900 / viewBox.w)}%</text>
-        </g>
-
-        {/* DEBUG: numbered pin labels — tell me coordinates where each should go */}
-        {locations.map((loc, idx) => {
-          const c = PIN_COORDS[loc.id];
-          if (!c) return null;
-          const num = idx + 1;
-          return (
-            <g key={'d_'+loc.id}>
-              <circle cx={c[0]} cy={c[1]} r={16} fill="rgba(255,50,50,0.7)" stroke="#fff" strokeWidth={2} />
-              <text x={c[0]} y={c[1]+1} textAnchor="middle" fontSize={13} fill="#fff" fontWeight="bold" fontFamily="monospace">{num}</text>
-              <text x={c[0]} y={c[1]+30} textAnchor="middle" fontSize={9} fill="#ff3333" fontWeight="bold" fontFamily="monospace" style={{textShadow:'0 0 3px rgba(255,255,255,0.8)'}}>{loc.id}</text>
-            </g>
-          );
-        })}
-        {/* END DEBUG */}
-
         {/* Settlement pins */}
         {locations.map((loc) => {
-          const coord = PIN_COORDS[loc.id];
+          const coord = pinCoords[loc.id];
           if (!coord) return null;
           const [x, y] = coord;
           const isSelected = loc.id === selectedLocationId;
@@ -192,7 +219,8 @@ export function MapPanel({
             <g
               key={loc.id}
               className={`map-pin ${isSelected ? 'selected' : ''} ${isActive ? 'active' : ''}`}
-              onClick={(e) => { e.stopPropagation(); onLocationClick(loc.id); }}
+              onClick={(e) => handlePinClick(e, loc.id)}
+              onPointerDown={(e) => handlePinPointerDown(e, loc.id)}
               onMouseEnter={() => setHoveredId(loc.id)}
               onMouseLeave={() => setHoveredId(null)}
               style={{ cursor: 'pointer' }}
@@ -208,17 +236,37 @@ export function MapPanel({
                 </circle>
               )}
               <ellipse cx={x + 2} cy={y + 2} rx={radius} ry={radius} fill="#000" opacity={0.2} />
-              <circle cx={x} cy={y} r={radius} fill={isSelected ? '#d4a73a' : isHovered ? '#c8a44a' : '#b89850'} stroke="#fff" strokeWidth={2.5} filter={isSelected ? 'url(#pinShadowSelected)' : 'url(#pinShadow)'} />
+              <circle
+                cx={x} cy={y} r={radius}
+                fill={isSelected ? '#d4a73a' : isHovered ? '#c8a44a' : '#b89850'}
+                stroke="#fff" strokeWidth={2.5}
+                filter={isSelected ? 'url(#pinShadowSelected)' : 'url(#pinShadow)'}
+              />
               <circle cx={x - 3} cy={y - 3} r={radius * 0.3} fill="#fff" opacity={0.35} />
-              <text x={x} y={y + radius + 16} textAnchor="middle" fontSize={isSelected ? 13 : 11} fill="#fff" fontWeight={isSelected ? 'bold' : '600'} style={{ textShadow: '0 1px 3px rgba(0,0,0,0.8)' }}>{loc.name}</text>
+              <text
+                x={x} y={y + radius + 16} textAnchor="middle"
+                fontSize={isSelected ? 13 : 11}
+                fill="#fff" fontWeight={isSelected ? 'bold' : '600'}
+                style={{ textShadow: '0 1px 3px rgba(0,0,0,0.8)', pointerEvents: 'none' }}
+              >
+                {loc.name}
+              </text>
             </g>
           );
         })}
 
-        {/* Help text hint */}
-        <g transform={`translate(10, ${viewBox.y + 20})`}>
-          <rect x={0} y={0} width={160} height={18} rx={3} fill="#2a2218" opacity={0.6} />
-          <text x={80} y={13} textAnchor="middle" fontSize={8} fill="#a89880" fontFamily="'Helvetica',sans-serif">Drag to pan · Scroll to zoom</text>
+        {/* Reset pins control */}
+        <g transform={`translate(10, ${viewBox.y + viewBox.h - 42})`} onClick={(e) => { e.stopPropagation(); resetPins(); }} style={{ cursor: 'pointer' }}>
+          <rect x={0} y={0} width={70} height={20} rx={3} fill="#2a2218" stroke="#4a3f30" strokeWidth={0.5} opacity={0.85} />
+          <text x={35} y={14} textAnchor="middle" fontSize={9} fill="#a89880" fontFamily="'Heebo',sans-serif">Reset pins</text>
+        </g>
+
+        {/* Zoom indicator */}
+        <g transform={`translate(8, ${viewBox.y + 20})`} pointerEvents="none">
+          <rect x={0} y={0} width={150} height={18} rx={3} fill="#2a2218" opacity={0.6} />
+          <text x={75} y={13} textAnchor="middle" fontSize={8} fill="#a89880" fontFamily="'Heebo',sans-serif">
+            Drag pins to move · Scroll to zoom · Drag to pan
+          </text>
         </g>
       </svg>
 
@@ -227,17 +275,17 @@ export function MapPanel({
         <div className="location-detail" style={{ position: 'absolute', bottom: '1rem', left: '1rem', right: '1rem', background: '#2a2218', border: '1px solid #d4a73a', borderRadius: 8, padding: '1rem', zIndex: 10, boxShadow: '0 4px 20px rgba(0,0,0,0.6)' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
             <h4 style={{ color: '#d4a73a', margin: 0, fontSize: '1rem' }}>{selectedLoc!.name}</h4>
-            <button onClick={() => onLocationClick('')} style={{ background: 'none', border: '1px solid #4a3f30', color: '#a89880', borderRadius: 4, padding: '0.2rem 0.6rem', cursor: 'pointer', fontSize: '0.8rem' }}>&larr; Back</button>
+            <button onClick={() => onLocationClick('')} style={{ background: 'none', border: '1px solid #4a3f30', color: '#f0ece0', borderRadius: 4, padding: '0.2rem 0.6rem', cursor: 'pointer', fontSize: '0.8rem' }}>&larr; Back</button>
           </div>
-          {selectedLoc!.type && <p style={{ color: '#a89880', fontSize: '0.8rem', margin: '0 0 0.2rem' }}>{selectedLoc!.type.replace('_', ' ')}</p>}
-          {selectedLoc!.founded !== undefined && selectedLoc!.founded > 0 && <p style={{ color: '#a89880', fontSize: '0.8rem', margin: '0 0 0.5rem' }}>Founded {selectedLoc!.founded}</p>}
+          {selectedLoc!.type && <p style={{ color: '#f0ece0', fontSize: '0.8rem', margin: '0 0 0.2rem' }}>{selectedLoc!.type.replace('_', ' ')}</p>}
+          {selectedLoc!.founded !== undefined && selectedLoc!.founded > 0 && <p style={{ color: '#f0ece0', fontSize: '0.8rem', margin: '0 0 0.5rem' }}>Founded {selectedLoc!.founded}</p>}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
-            {['Housing', 'Water', 'Health'].map((stat) => {
+            {(['Housing', 'Water', 'Health'] as const).map((stat) => {
               const val = stat === 'Housing' ? selectedLoc!.housing : stat === 'Water' ? selectedLoc!.water : selectedLoc!.health;
               const color = stat === 'Housing' ? '#4a9e4a' : stat === 'Water' ? '#4a8ad4' : '#d4a73a';
               return (
                 <div key={stat}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', color: '#e8ddd0' }}><span>{stat}</span><span>{val ?? 0}</span></div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', color: '#f0ece0' }}><span>{stat}</span><span>{val ?? 0}</span></div>
                   <div style={{ height: 6, background: 'rgba(255,255,255,0.1)', borderRadius: 3, overflow: 'hidden' }}>
                     <div style={{ width: `${val ?? 0}%`, height: '100%', background: color, borderRadius: 3, transition: 'width 0.3s' }} />
                   </div>

@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { useGame } from '../context/GameContext';
 import { listEras, createSession, EraMeta } from '../api/game';
@@ -5,6 +6,7 @@ import { ErrorBanner, LoadingIndicator, EmptyState } from './Status';
 
 export function EraSelector() {
   const { dispatch } = useGame();
+  const navigate = useNavigate();
   const [eras, setEras] = useState<EraMeta[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -34,6 +36,7 @@ export function EraSelector() {
     try {
       const result = await createSession(era.id);
       dispatch({ type: 'NEW_SESSION', sessionId: result.session.id, eraId: era.id });
+      navigate(`/game/${result.session.id}`);
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Failed to create session';
       setError(message);
@@ -44,7 +47,7 @@ export function EraSelector() {
 
   return (
     <div className="page">
-      <button className="btn btn-ghost" onClick={() => dispatch({ type: 'SET_SCREEN', screen: 'home' })}>
+      <button className="btn btn-ghost" onClick={() => navigate('/')}>
         &larr; Back
       </button>
       <h1>Choose an Era</h1>

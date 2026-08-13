@@ -65,13 +65,23 @@ export interface ProjectStateView {
   status: 'available' | 'active' | 'completed';
 }
 
+export interface LocationStateView {
+  id: string;
+  housing: number;
+  water: number;
+  health: number;
+  populationCapacity: number;
+}
+
 export interface GameStateView {
   resources: GameResources;
   foundationTracks: FoundationTracks;
-  locations: unknown[];
+  locations: LocationStateView[];
   cohorts: CohortStateView[];
   projects: ProjectStateView[];
 }
+
+
 
 export type Grade = 'gold' | 'silver' | 'bronze' | 'loss';
 

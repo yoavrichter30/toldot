@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom';
 import { useGame } from '../context/GameContext';
 
 const GRADE_CONFIG: Record<string, { label: string; color: string; message: string }> = {
@@ -9,6 +10,7 @@ const GRADE_CONFIG: Record<string, { label: string; color: string; message: stri
 
 export function GameOverScreen() {
   const { state, dispatch } = useGame();
+  const navigate = useNavigate();
   const config = GRADE_CONFIG[state.grade ?? ''] ?? { label: 'Game Over', color: '#6f6a5e', message: 'The game is over.' };
 
   return (
@@ -20,7 +22,7 @@ export function GameOverScreen() {
       </p>
       <button
         className="btn btn-primary btn-lg"
-        onClick={() => dispatch({ type: 'SET_SCREEN', screen: 'home' })}
+        onClick={() => { dispatch({ type: 'SET_SCREEN', screen: 'home' }); navigate('/'); }}
       >
         Back to Menu
       </button>

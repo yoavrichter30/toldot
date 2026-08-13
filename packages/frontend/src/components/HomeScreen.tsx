@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom';
 import { useGame } from '../context/GameContext';
 import { useEffect, useState } from 'react';
 import { listSessions, getSession, SessionMeta } from '../api/game';
@@ -5,6 +6,7 @@ import { ErrorBanner, LoadingIndicator, EmptyState } from './Status';
 
 export function HomeScreen() {
   const { dispatch } = useGame();
+  const navigate = useNavigate();
   const [sessions, setSessions] = useState<SessionMeta[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -33,6 +35,7 @@ export function HomeScreen() {
     try {
       const data = await getSession(meta.id as string);
       dispatch({ type: 'LOAD_SESSION', session: data.session });
+      navigate(`/game/${meta.id}`);
     } catch {
       setError('Could not load that session. It may have been deleted.');
     } finally {
@@ -47,7 +50,7 @@ export function HomeScreen() {
 
       <button
         className="btn btn-primary btn-lg"
-        onClick={() => dispatch({ type: 'SET_SCREEN', screen: 'new-game' })}
+        onClick={() => navigate('/new-game')}
       >
         New Game
       </button>

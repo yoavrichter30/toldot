@@ -100,6 +100,18 @@ export function GameScreen() {
     ? ERA_LOCATIONS.find((l) => l.id === selectedLocation)?.name ?? null
     : null;
 
+  // Merge static location metadata with live game-state values so the map
+  // and detail panel reflect current housing/water/health.
+  const mapLocations = ERA_LOCATIONS.map((loc) => {
+    const live = state.state?.locations.find((l) => l.id === loc.id);
+    return {
+      ...loc,
+      housing: live?.housing ?? loc.housing,
+      water: live?.water ?? loc.water,
+      health: live?.health ?? loc.health,
+    };
+  });
+
   const enhancedSuggestions = selectedLocName
     ? [...suggestions, `Build housing in ${selectedLocName}`]
     : suggestions;
@@ -129,7 +141,7 @@ export function GameScreen() {
       <div className="game-layout game-layout-with-map">
         <section className="game-map">
           <MapPanel
-            locations={ERA_LOCATIONS}
+            locations={mapLocations}
             onLocationClick={handleLocationClick}
             selectedLocationId={selectedLocation}
             activeLocationIds={activeLocationIds}

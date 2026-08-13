@@ -385,7 +385,7 @@ p {
 .narration-text {
   white-space: pre-wrap;
   line-height: 1.6;
-  color: #e8ddd0;
+  color: var(--text);
   font-size: 0.95rem;
 }
 
@@ -402,7 +402,7 @@ p {
 }
 
 .narrative-box details li {
-  color: #c8bda0;
+  color: #d8cdb0;
   margin-bottom: 0.35rem;
   font-size: 0.85rem;
 }
