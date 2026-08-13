@@ -2,7 +2,6 @@ import React, { createContext, useContext, useReducer, ReactNode } from 'react';
 import { TurnResponse, SpawnedEvent, SessionData } from '../api/game';
 
 interface GameState {
-  screen: 'home' | 'new-game' | 'playing' | 'game-over';
   sessionId: string | null;
   eraId: string | null;
   turn: number;
@@ -20,7 +19,6 @@ interface GameState {
 }
 
 type GameAction =
-  | { type: 'SET_SCREEN'; screen: GameState['screen'] }
   | { type: 'NEW_SESSION'; sessionId: string; eraId: string }
   | { type: 'SET_TURN'; data: TurnResponse }
   | { type: 'SET_LOADING'; loading: boolean }
@@ -28,7 +26,6 @@ type GameAction =
   | { type: 'LOAD_SESSION'; session: SessionData };
 
 const initialState: GameState = {
-  screen: 'home',
   sessionId: null,
   eraId: null,
   turn: 0,
@@ -47,10 +44,8 @@ const initialState: GameState = {
 
 function gameReducer(state: GameState, action: GameAction): GameState {
   switch (action.type) {
-    case 'SET_SCREEN':
-      return { ...state, screen: action.screen, error: null };
     case 'NEW_SESSION':
-      return { ...state, sessionId: action.sessionId, eraId: action.eraId, screen: 'playing', turn: 0, gameOver: false, grade: undefined, journalNotes: [] };
+      return { ...state, sessionId: action.sessionId, eraId: action.eraId, turn: 0, gameOver: false, grade: undefined, journalNotes: [] };
     case 'SET_TURN':
       return {
         ...state,
@@ -64,7 +59,6 @@ function gameReducer(state: GameState, action: GameAction): GameState {
         state: action.data.state,
         gameOver: action.data.gameOver,
         grade: action.data.grade,
-        screen: action.data.gameOver ? 'game-over' : 'playing',
         loading: false,
         error: null,
       };
@@ -75,7 +69,6 @@ function gameReducer(state: GameState, action: GameAction): GameState {
         ...state,
         sessionId: session.id,
         eraId: session.eraId,
-        screen: finished ? 'game-over' : 'playing',
         turn: session.currentTurn,
         date: session.date,
         state: session.state,
