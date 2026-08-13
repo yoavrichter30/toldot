@@ -281,6 +281,45 @@ p {
   font-size: 0.85rem;
 }
 
+.home-hero {
+  margin-bottom: 1.5rem;
+}
+
+.home-hero .tagline {
+  font-size: 1.05rem;
+  line-height: 1.55;
+}
+
+.era-hero-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  text-align: left;
+  box-shadow: var(--shadow);
+}
+
+.era-hero-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--accent-strong);
+  margin-bottom: 0.25rem;
+}
+
+.era-hero-meta {
+  font-size: 0.9rem;
+  color: var(--muted);
+  margin-bottom: 0.75rem;
+}
+
+.era-hero-goal {
+  font-size: 0.9rem;
+  color: var(--text);
+  line-height: 1.5;
+  margin-bottom: 1.25rem;
+}
+
 /* Era selector */
 .page {
   max-width: 640px;

@@ -7,6 +7,8 @@ export interface EraMeta {
   endDate: string;
   maxTurns: number;
   model: string;
+  goal?: string;
+  objectives?: string[];
 }
 
 export interface SessionMeta {

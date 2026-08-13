@@ -1,22 +1,25 @@
 import { useNavigate } from 'react-router-dom';
 import { useGame } from '../context/GameContext';
 import { useEffect, useState } from 'react';
-import { listSessions, getSession, SessionMeta } from '../api/game';
+import { listSessions, listEras, getSession, SessionMeta, EraMeta } from '../api/game';
 import { ErrorBanner, LoadingIndicator, EmptyState } from './Status';
 
 export function HomeScreen() {
   const { dispatch } = useGame();
   const navigate = useNavigate();
   const [sessions, setSessions] = useState<SessionMeta[]>([]);
+  const [eras, setEras] = useState<EraMeta[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [continuing, setContinuing] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
-    listSessions()
-      .then(sessions => {
-        if (!cancelled) setSessions(sessions);
+    Promise.all([listSessions(), listEras()])
+      .then(([sessions, eras]) => {
+        if (cancelled) return;
+        setSessions(sessions);
+        setEras(eras);
       })
       .catch(() => {
         if (!cancelled) setError('Could not load saved games. Make sure the server is running.');
@@ -43,45 +46,75 @@ export function HomeScreen() {
     }
   };
 
+  const era = eras[0];
+
   return (
     <div className="home">
-      <h1>Toldot</h1>
-      <p className="tagline">An educational game through the eras of the Yishuv</p>
+      <header className="home-hero">
+        <h1>Toldot</h1>
+        <p className="tagline">
+          A living-history adventure where <em>you</em> guide the Yishuv committee.
+          A Dungeon Master narrates every round — and the choices are real.
+        </p>
+      </header>
 
-      <button
-        className="btn btn-primary btn-lg"
-        onClick={() => navigate('/new-game')}
-      >
-        New Game
-      </button>
+      {error && <ErrorBanner message={error} onDismiss={() => setError(null)} />}
 
-      <section className="home-sessions">
-        <h2>Continue Game</h2>
-        {error && <ErrorBanner message={error} onDismiss={() => setError(null)} />}
-        {loading ? (
-          <LoadingIndicator label="Loading saved games…" />
-        ) : sessions.length === 0 ? (
-          <EmptyState message="No saved games yet. Start a new game to begin." />
-        ) : (
-          <ul className="session-list">
-            {sessions.map(s => (
-              <li key={s.id}>
-                <button
-                  className="session-item"
-                  onClick={() => handleContinue(s)}
-                  disabled={continuing === s.id}
-                >
-                  <span className="session-era">{s.eraId}</span>
-                  <span className="session-meta">
-                    Turn {s.currentTurn} · {s.status}
-                  </span>
-                  {continuing === s.id && <span className="spinner spinner-sm" aria-hidden="true" />}
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
+      {loading ? (
+        <LoadingIndicator label="Loading…" />
+      ) : (
+        <>
+          {era && (
+            <div className="era-hero-card">
+              <div className="era-hero-title">{era.title}</div>
+              <div className="era-hero-meta">
+                {era.startDate} — {era.endDate} · {era.maxTurns} rounds
+              </div>
+              {era.goal && <div className="era-hero-goal">{era.goal}</div>}
+              <button
+                className="btn btn-primary btn-lg"
+                onClick={() => navigate('/new-game')}
+              >
+                ⚔️ Begin the Journey
+              </button>
+            </div>
+          )}
+
+          {!era && (
+            <button
+              className="btn btn-primary btn-lg"
+              onClick={() => navigate('/new-game')}
+            >
+              New Game
+            </button>
+          )}
+
+          <section className="home-sessions">
+            <h2>Continue a Saved Journey</h2>
+            {sessions.length === 0 ? (
+              <EmptyState message="No saved games yet. Begin a new journey to start." />
+            ) : (
+              <ul className="session-list">
+                {sessions.slice(0, 10).map((s) => (
+                  <li key={s.id}>
+                    <button
+                      className="session-item"
+                      onClick={() => handleContinue(s)}
+                      disabled={continuing === s.id}
+                    >
+                      <span className="session-era">{s.eraId.replace(/-/g, ' ')}</span>
+                      <span className="session-meta">
+                        Round {s.currentTurn} · {s.status}
+                      </span>
+                      {continuing === s.id && <span className="spinner spinner-sm" aria-hidden="true" />}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+        </>
+      )}
     </div>
   );
 }

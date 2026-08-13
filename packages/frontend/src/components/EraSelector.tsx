@@ -56,6 +56,8 @@ export function EraSelector() {
         <LoadingIndicator label="Loading eras…" />
       ) : eras.length === 0 ? (
         <EmptyState message="No eras available." />
+      ) : creating ? (
+        <LoadingIndicator label="Forging your journey…" />
       ) : (
         <div className="era-list">
           {eras.map(era => (
@@ -67,7 +69,7 @@ export function EraSelector() {
             >
               <span className="era-title">{era.title}</span>
               <span className="era-meta">
-                {era.startDate} — {era.endDate} · {era.maxTurns} turns
+                {era.startDate} — {era.endDate} · {era.maxTurns} rounds
               </span>
             </button>
           ))}
