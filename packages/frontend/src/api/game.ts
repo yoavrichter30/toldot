@@ -125,8 +125,8 @@ export function listEras(): Promise<EraMeta[]> {
   return request<EraMeta[]>(`${BASE}/eras`);
 }
 
-export function createSession(eraId: string): Promise<{ session: { id: string } }> {
-  return request<{ session: { id: string } }>(`${BASE}/session`, {
+export function createSession(eraId: string): Promise<{ session: { id: string }; goal?: string; objectives?: string[] }> {
+  return request<{ session: { id: string }; goal?: string; objectives?: string[] }>(`${BASE}/session`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ eraId }),

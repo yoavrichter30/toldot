@@ -16,6 +16,7 @@ import { MapPanel } from './MapPanel';
 interface LocationInfo {
   id: string;
   name: string;
+  description: string;
   housing: number;
   water: number;
   health: number;
@@ -24,18 +25,17 @@ interface LocationInfo {
 }
 
 const ERA_LOCATIONS: LocationInfo[] = [
-  { id: 'jaffa', name: 'Jaffa', housing: 80, water: 80, health: 60, founded: 0, type: 'port_city' },
-  { id: 'petah_tikva', name: 'Petah Tikva', housing: 50, water: 30, health: 35, founded: 1878, type: 'moshava' },
-  { id: 'rishon_lezion', name: 'Rishon LeZion', housing: 55, water: 40, health: 40, founded: 1882, type: 'moshava' },
-  { id: 'rehovot', name: 'Rehovot', housing: 45, water: 35, health: 40, founded: 1890, type: 'moshava' },
-  { id: 'zikhron_yaakov', name: "Zikhron Ya'akov", housing: 50, water: 35, health: 40, founded: 1882, type: 'moshava' },
-  { id: 'hadera', name: 'Hadera', housing: 30, water: 15, health: 20, founded: 1891, type: 'moshava' },
-  { id: 'kfar_saba', name: 'Kfar Saba', housing: 8, water: 5, health: 15, founded: 1903, type: 'moshava' },
-  { id: 'sejera', name: 'Sejera (Ilaniya)', housing: 25, water: 30, health: 35, founded: 1899, type: 'training_farm' },
-  { id: 'metulla', name: 'Metulla', housing: 25, water: 25, health: 30, founded: 1896, type: 'moshava' },
-  { id: 'kinneret_farm', name: 'Kinneret Farm', housing: 5, water: 10, health: 20, founded: 1908, type: 'training_farm' },
-  { id: 'degamia', name: 'Degania', housing: 0, water: 0, health: 0, founded: 1909, type: 'training_farm' },
-  { id: 'rosh_pinna', name: 'Rosh Pinna', housing: 40, water: 30, health: 35, founded: 1882, type: 'moshava' },
+  { id: 'jaffa', name: 'Jaffa', description: "The ancient port where most newcomers first set foot in the Land of Israel. Its harbor and markets are the Yishuv's lifeline to the wider world.", housing: 80, water: 80, health: 60, founded: 0, type: 'port_city' },
+  { id: 'petah_tikva', name: 'Petah Tikva', description: "The 'Mother of the Moshavot' — the first of the modern agricultural settlements, founded in 1878. Its orchards anchor the coastal plain.", housing: 50, water: 30, health: 35, founded: 1878, type: 'moshava' },
+  { id: 'rishon_lezion', name: 'Rishon LeZion', description: "Founded in 1882 by the Bilu pioneers. Home of the first Hebrew school and kindergarten, and the great Carmel winery.", housing: 55, water: 40, health: 40, founded: 1882, type: 'moshava' },
+  { id: 'rehovot', name: 'Rehovot', description: "Founded in 1890 on the coastal plain. Known for its citrus and almond orchards and an early Hebrew cultural life.", housing: 45, water: 35, health: 40, founded: 1890, type: 'moshava' },
+  { id: 'zikhron_yaakov', name: "Zikhron Ya'akov", description: "Founded in 1882 under the patronage of Baron Rothschild. A wine-producing moshava on the slopes of Mount Carmel.", housing: 50, water: 35, health: 40, founded: 1882, type: 'moshava' },
+  { id: 'hadera', name: 'Hadera', description: "Founded in 1891 on swampy ground. Malaria haunted its early settlers until the marshes were finally drained.", housing: 30, water: 15, health: 20, founded: 1891, type: 'moshava' },
+  { id: 'kfar_saba', name: 'Kfar Saba', description: "A small moshava founded in 1903. Its first years were hard — isolated, marshy, and short of water.", housing: 8, water: 5, health: 15, founded: 1903, type: 'moshava' },
+  { id: 'sejera', name: 'Sejera (Ilaniya)', description: "A training farm founded in 1899 in the Lower Galilee. Its fields trained the guards of Bar Giora and Hashomer.", housing: 25, water: 30, health: 35, founded: 1899, type: 'training_farm' },
+  { id: 'metulla', name: 'Metulla', description: "The northernmost settlement, founded in 1896 at the foot of the mountains. A frontier outpost looking over the Hula Valley.", housing: 25, water: 25, health: 30, founded: 1896, type: 'moshava' },
+  { id: 'degamia', name: 'Degania', description: "The first kvutza (communal settlement), founded in 1909 south of the Sea of Galilee. Its collective ideal shaped the Labor movement.", housing: 0, water: 0, health: 0, founded: 1909, type: 'training_farm' },
+  { id: 'rosh_pinna', name: 'Rosh Pinna', description: "Founded in 1882 in the Upper Galilee by pioneers from Romania. A hilltop moshava overlooking the Hula Valley.", housing: 40, water: 30, health: 35, founded: 1882, type: 'moshava' },
 ];
 
 export function GameScreen() {
@@ -117,13 +117,13 @@ export function GameScreen() {
         <h2>Toldot</h2>
         <div className="turn-info">
           <button className="btn btn-ghost" onClick={() => setShowMission((v) => !v)}>
-            🎯 Mission
+            Mission
           </button>
           <button className="btn btn-ghost" onClick={() => setShowLedger((v) => !v)}>
-            📊 Ledger
+            Ledger
           </button>
           <button className="btn btn-ghost" onClick={() => setShowJournal(true)}>
-            📜 Journal
+            Journal
           </button>
           <span className="round-indicator">
             Round {state.turn}/{state.maxTurns} · {state.date}

@@ -40,8 +40,8 @@ Write like a Dungeon Master setting a scene, not a status report. Each round:
 - 1909: Tel Aviv (Ahuzat Bayit) founded on sand dunes near Jaffa
 - 1910: First Hebrew high school (Gymnasia Herzliya) in Tel Aviv
 - 1911: Hebrew-language newspaper Ha'aretz founded
-- 1913: The "Language War" — conflict over Hebrew as the language of instruction
-- 1914: World War I begins, Ottoman authorities crack down
+jaffa, petah_tikva, rishon_lezion, rehovot, zikhron_yaakov, hadera, kfar_saba,
+sejera, metulla, degamia
 
 ## Grounding
 {{grounding_docs}}

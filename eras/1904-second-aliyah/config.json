@@ -91,16 +91,6 @@
       "population_capacity": 300
     },
     {
-      "id": "kinneret_farm",
-      "name": "Kinneret Farm",
-      "type": "training_farm",
-      "founded": 1908,
-      "initial_housing": 5,
-      "initial_water": 10,
-      "initial_health": 20,
-      "population_capacity": 150
-    },
-    {
       "id": "degamia",
       "name": "Degania",
       "type": "training_farm",

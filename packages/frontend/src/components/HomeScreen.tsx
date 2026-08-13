@@ -75,7 +75,7 @@ export function HomeScreen() {
                 className="btn btn-primary btn-lg"
                 onClick={() => navigate('/new-game')}
               >
-                ⚔️ Begin the Journey
+                Begin the Journey
               </button>
             </div>
           )}

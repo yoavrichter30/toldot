@@ -11,7 +11,7 @@ export function ObjectivesPanel({ goal, objectives, turn, maxTurns, date }: Prop
 
   return (
     <div className="card objectives-panel">
-      <div className="objectives-label">🎯 Your Mission</div>
+      <div className="objectives-label">Your Mission</div>
       {goal && <p className="goal-text">{goal}</p>}
       {objectives.length > 0 && (
         <ul className="objectives-list">

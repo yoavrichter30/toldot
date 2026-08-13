@@ -28,7 +28,7 @@ body {
 body {
   background: var(--bg);
   color: var(--text);
-  font-family: 'Heebo', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: 'Crimson Text', 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
   line-height: 1.55;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
@@ -43,7 +43,9 @@ h2,
 h3,
 h4 {
   margin: 0 0 0.5rem;
-  line-height: 1.25;
+  line-height: 1.2;
+  font-family: 'Cormorant Garamond', 'Crimson Text', Georgia, serif;
+  font-weight: 600;
 }
 
 p {
@@ -98,13 +100,18 @@ p {
 
 .btn-ghost {
   background: transparent;
-  border-color: transparent;
+  border: 1px solid var(--border);
   color: var(--muted);
-  padding: 0.35rem 0.6rem;
+  padding: 0.3rem 0.7rem;
+  border-radius: 6px;
+  font-size: 0.82rem;
+  letter-spacing: 0.02em;
 }
 
 .btn-ghost:hover:not(:disabled) {
-  background: var(--surface-alt);
+  color: var(--text);
+  border-color: var(--accent);
+  background: var(--accent-soft);
 }
 
 /* Inputs */
@@ -371,7 +378,7 @@ p {
 
 /* Game screen */
 .game {
-  max-width: 960px;
+  max-width: none;
   margin: 0 auto;
   padding: 1.25rem;
 }
@@ -941,7 +948,7 @@ p {
 }
 
 .game {
-  max-width: 1400px;
+  max-width: none;
 }
 
 .game-header h2 {
@@ -1433,8 +1440,9 @@ p {
   font-size: 0.82rem;
 }
 
-.metric-icon {
-  font-size: 0.9rem;
+.metric-label {
+  color: var(--muted);
+  font-size: 0.78rem;
 }
 
 .metric-value {
@@ -1533,4 +1541,26 @@ p {
     bottom: 0.5rem;
     width: auto;
   }
+}
+
+/* Header / navbar polish */
+.game-header {
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 1rem;
+}
+
+.game-header h2 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.6rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* Home menu polish */
+.home h1 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 3.4rem;
+  letter-spacing: 0.04em;
+  margin-bottom: 0.5rem;
 }

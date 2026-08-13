@@ -19,8 +19,9 @@ export class GameController {
   @Post('session')
   createSession(@Body() body: { eraId: string }) {
     if (!body.eraId) throw new NotFoundException('eraId is required');
+    const era = this.eraService.loadEra(body.eraId);
     const session = this.sessionService.createSession(body.eraId);
-    return { session };
+    return { session, goal: era.meta.goal, objectives: era.meta.objectives };
   }
 
   @Get('sessions')

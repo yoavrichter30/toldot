@@ -25,7 +25,7 @@ export function ChatThread({ messages, pendingEvents, loading, onChoice }: Props
       {messages.map((msg) => (
         <div key={msg.id} className={`chat-message chat-${msg.role}`}>
           {msg.role === 'dm' && (
-            <div className="chat-avatar" aria-hidden="true">🜲</div>
+            <div className="chat-avatar" aria-hidden="true">DM</div>
           )}
           <div className="chat-bubble">
             {msg.role === 'dm' && <div className="chat-sender">The Dungeon Master</div>}
@@ -33,7 +33,7 @@ export function ChatThread({ messages, pendingEvents, loading, onChoice }: Props
             <div className="chat-text">{msg.text}</div>
             {msg.notes && msg.notes.length > 0 && (
               <details className="chat-lore">
-                <summary>📜 Lore</summary>
+                <summary>Lore</summary>
                 <ul>
                   {msg.notes.map((n, i) => <li key={i}>{n}</li>)}
                 </ul>
@@ -46,7 +46,7 @@ export function ChatThread({ messages, pendingEvents, loading, onChoice }: Props
       {/* Pending decisions on the current turn */}
       {pendingEvents.map((ev) => (
         <div key={ev.id} className="chat-message chat-dm">
-          <div className="chat-avatar" aria-hidden="true">⚔️</div>
+          <div className="chat-avatar" aria-hidden="true">?</div>
           <div className="chat-bubble decision-bubble">
             <div className="chat-sender">A decision awaits</div>
             <div className="decision-title">{ev.title}</div>
@@ -71,7 +71,7 @@ export function ChatThread({ messages, pendingEvents, loading, onChoice }: Props
 
       {loading && (
         <div className="chat-message chat-dm">
-          <div className="chat-avatar" aria-hidden="true">🜲</div>
+          <div className="chat-avatar" aria-hidden="true">DM</div>
           <div className="chat-bubble chat-typing">
             <span className="typing-dot" />
             <span className="typing-dot" />

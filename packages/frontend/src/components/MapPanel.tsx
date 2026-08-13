@@ -3,6 +3,7 @@ import { useState, useRef, useCallback } from 'react';
 interface MapLocation {
   id: string;
   name: string;
+  description?: string;
   housing?: number;
   water?: number;
   health?: number;
@@ -22,7 +23,6 @@ interface MapPanelProps {
 const PIN_COORDS: Record<string, [number, number]> = {
   metulla: [612, 20],
   rosh_pinna: [597, 120],
-  kinneret_farm: [600, 262],
   degamia: [618, 290],
   sejera: [530, 262],
   zikhron_yaakov: [313, 347],
@@ -207,6 +207,7 @@ export function MapPanel({
             <h4 style={{ color: '#d4a73a', margin: 0, fontSize: '1rem' }}>{selectedLoc!.name}</h4>
             <button onClick={() => onLocationClick('')} style={{ background: 'none', border: '1px solid #4a3f30', color: '#f0ece0', borderRadius: 4, padding: '0.2rem 0.6rem', cursor: 'pointer', fontSize: '0.8rem' }}>&larr; Back</button>
           </div>
+          {selectedLoc!.description && <p style={{ color: '#d8cdb0', fontSize: '0.82rem', lineHeight: 1.5, margin: '0 0 0.5rem' }}>{selectedLoc!.description}</p>}
           {selectedLoc!.type && <p style={{ color: '#f0ece0', fontSize: '0.8rem', margin: '0 0 0.2rem' }}>{selectedLoc!.type.replace('_', ' ')}</p>}
           {selectedLoc!.founded !== undefined && selectedLoc!.founded > 0 && <p style={{ color: '#f0ece0', fontSize: '0.8rem', margin: '0 0 0.5rem' }}>Founded {selectedLoc!.founded}</p>}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>

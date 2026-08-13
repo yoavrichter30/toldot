@@ -5,11 +5,11 @@ interface Props {
   foundationTracks: FoundationTracks;
 }
 
-const RESOURCES: { key: keyof GameResources; label: string; icon: string }[] = [
-  { key: 'funds', label: 'Funds', icon: '🪙' },
-  { key: 'people', label: 'People', icon: '👥' },
-  { key: 'publicTrust', label: 'Trust', icon: '🤝' },
-  { key: 'ottomanTolerance', label: 'Ottoman', icon: '🏛️' },
+const RESOURCES: { key: keyof GameResources; label: string }[] = [
+  { key: 'funds', label: 'Funds' },
+  { key: 'people', label: 'People' },
+  { key: 'publicTrust', label: 'Trust' },
+  { key: 'ottomanTolerance', label: 'Ottoman' },
 ];
 
 const TRACKS: { key: keyof FoundationTracks; label: string }[] = [
@@ -25,7 +25,7 @@ export function MetricsBar({ resources, foundationTracks }: Props) {
       <div className="metrics-resources">
         {RESOURCES.map((r) => (
           <span key={r.key} className="metric-chip" title={r.label}>
-            <span className="metric-icon" aria-hidden="true">{r.icon}</span>
+            <span className="metric-label">{r.label}</span>
             <span className="metric-value">{resources[r.key]}</span>
           </span>
         ))}

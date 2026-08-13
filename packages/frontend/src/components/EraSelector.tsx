@@ -35,7 +35,7 @@ export function EraSelector() {
     setError(null);
     try {
       const result = await createSession(era.id);
-      dispatch({ type: 'NEW_SESSION', sessionId: result.session.id, eraId: era.id });
+      dispatch({ type: 'NEW_SESSION', sessionId: result.session.id, eraId: era.id, goal: result.goal, objectives: result.objectives });
       navigate(`/game/${result.session.id}`);
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Failed to create session';

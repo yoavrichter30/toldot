@@ -29,7 +29,7 @@ interface GameState {
 }
 
 type GameAction =
-  | { type: 'NEW_SESSION'; sessionId: string; eraId: string }
+  | { type: 'NEW_SESSION'; sessionId: string; eraId: string; goal?: string; objectives?: string[] }
   | { type: 'SET_TURN'; data: TurnResponse }
   | { type: 'ADD_MESSAGE'; message: ChatMessage }
   | { type: 'SET_LOADING'; loading: boolean }
@@ -67,8 +67,8 @@ function gameReducer(state: GameState, action: GameAction): GameState {
         grade: undefined,
         journalNotes: [],
         messages: [],
-        goal: '',
-        objectives: [],
+        goal: action.goal ?? '',
+        objectives: action.objectives ?? [],
       };
     case 'SET_TURN': {
       const dmMessage: ChatMessage = {
