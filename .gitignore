@@ -5,7 +5,11 @@
 .beads-credential-key
 .beads/proxieddb/
 
-# Worktree directories
+data/
+*.db-shm
+*.db-wal
+.DS_Store
+map.png
 .worktrees/
 
 # Dependencies and build output
