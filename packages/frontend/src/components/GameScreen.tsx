@@ -90,8 +90,12 @@ export function GameScreen() {
   };
 
   const handleEventChoice = (eventId: string, choiceKey: string) => {
-    setEvents((prev) => prev.filter((ev) => ev.id !== eventId));
-    console.log(`Event ${eventId} resolved with choice: ${choiceKey}`);
+    const ev = events.find((e) => e.id === eventId);
+    const choice = ev?.choices?.find((c) => c.key === choiceKey);
+    setEvents((prev) => prev.filter((e) => e.id !== eventId));
+    if (choice) {
+      handleSendEffect(`I choose: ${choice.label}`);
+    }
   };
 
   if (state.gameOver) return <GameOverScreen />;
@@ -122,10 +126,10 @@ export function GameScreen() {
         <h2>Toldot</h2>
         <div className="turn-info">
           <button className="btn btn-ghost" onClick={() => setShowJournal(true)}>
-            Journal
+            📜 Journal
           </button>
           &nbsp;
-          Turn {state.turn}/{state.maxTurns} &middot; {state.date}
+          Round {state.turn}/{state.maxTurns} &middot; {state.date}
         </div>
       </header>
 

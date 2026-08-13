@@ -26,7 +26,7 @@ export function ActionInput({ suggestions, onSend, disabled, externalAction }: P
     <div>
       {suggestions.length > 0 && (
         <div className="suggestions">
-          <div className="suggestions-label">Suggested actions:</div>
+          <div className="suggestions-label">What you could do:</div>
           <div className="suggestion-chips">
             {suggestions.map((s, i) => (
               <button
@@ -48,7 +48,7 @@ export function ActionInput({ suggestions, onSend, disabled, externalAction }: P
           onChange={e => setAction(e.target.value)}
           onKeyDown={e => e.key === 'Enter' && handleSubmit()}
           disabled={disabled}
-          placeholder="Type your action&hellip;"
+          placeholder="What does the committee do&hellip;"
         />
         <button
           className="btn btn-primary"
