@@ -11,6 +11,7 @@ import { GameOverScreen } from './GameOverScreen';
 import { ErrorBanner, LoadingIndicator } from './Status';
 import { JournalView } from './JournalView';
 import { MapPanel } from './MapPanel';
+import { ObjectivesPanel } from './ObjectivesPanel';
 
 interface LocationInfo {
   id: string;
@@ -170,6 +171,13 @@ export function GameScreen() {
           </main>
 
           <aside className="game-side">
+            <ObjectivesPanel
+              goal={state.goal}
+              objectives={state.objectives}
+              turn={state.turn}
+              maxTurns={state.maxTurns}
+              date={state.date}
+            />
             {state.state ? (
               <>
                 <ResourcePanel

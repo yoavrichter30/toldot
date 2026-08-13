@@ -16,6 +16,8 @@ interface GameState {
   grade: string | undefined;
   loading: boolean;
   error: string | null;
+  goal: string;
+  objectives: string[];
 }
 
 type GameAction =
@@ -40,12 +42,24 @@ const initialState: GameState = {
   grade: undefined,
   loading: false,
   error: null,
+  goal: '',
+  objectives: [],
 };
 
 function gameReducer(state: GameState, action: GameAction): GameState {
   switch (action.type) {
     case 'NEW_SESSION':
-      return { ...state, sessionId: action.sessionId, eraId: action.eraId, turn: 0, gameOver: false, grade: undefined, journalNotes: [] };
+      return {
+        ...state,
+        sessionId: action.sessionId,
+        eraId: action.eraId,
+        turn: 0,
+        gameOver: false,
+        grade: undefined,
+        journalNotes: [],
+        goal: '',
+        objectives: [],
+      };
     case 'SET_TURN':
       return {
         ...state,
@@ -59,6 +73,8 @@ function gameReducer(state: GameState, action: GameAction): GameState {
         state: action.data.state,
         gameOver: action.data.gameOver,
         grade: action.data.grade,
+        goal: action.data.goal ?? state.goal,
+        objectives: action.data.objectives ?? state.objectives,
         loading: false,
         error: null,
       };

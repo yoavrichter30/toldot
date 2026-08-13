@@ -1148,6 +1148,50 @@ p {
   border-color: var(--accent-strong);
 }
 
+/* Objectives panel */
+.objectives-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.9rem;
+  box-shadow: var(--shadow);
+}
+
+.objectives-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 0.5rem;
+}
+
+.goal-text {
+  color: var(--text);
+  font-size: 0.88rem;
+  line-height: 1.5;
+  margin: 0 0 0.6rem;
+}
+
+.objectives-list {
+  margin: 0 0 0.6rem;
+  padding-left: 1.1rem;
+  color: var(--text);
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
+.objectives-list li {
+  margin-bottom: 0.3rem;
+}
+
+.objectives-progress {
+  font-size: 0.75rem;
+  color: var(--muted);
+  border-top: 1px solid var(--border);
+  padding-top: 0.5rem;
+}
+
 @media (max-width: 720px) {
   .game-layout-with-map {
     grid-template-columns: 1fr;

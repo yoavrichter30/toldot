@@ -5,6 +5,8 @@ export interface EraMeta {
   endDate: string;     // ISO "1914-07-01"
   maxTurns: number;
   model: string;       // "qwen3.5:9b"
+  goal?: string;       // one-line intro shown to the player
+  objectives?: string[]; // bullet-list of win conditions
 }
 
 export interface EraConfig {

@@ -4,3 +4,10 @@ start_date: "1904-01-01"
 end_date: "1914-07-01"
 max_turns: 126
 model: "qwen2.5:3b"
+goal: "Lead the Yishuv committee through the Second Aliyah (1904–1914). Turn scattered, fragile settlements into a connected, self-sustaining Hebrew community — before the era ends."
+objectives:
+  - "Strengthen the four foundation tracks: Settlement, Economy, Hebrew Life, Self-Organization."
+  - "Keep the treasury solvent — never let funds sit at zero for six straight months."
+  - "Keep at least two settlements viable (housing, water, and health above zero)."
+  - "Raise public trust among workers, donors, and the settlement committees."
+  - "Complete the Ahuzat Bayit urban project (the future Tel Aviv)."

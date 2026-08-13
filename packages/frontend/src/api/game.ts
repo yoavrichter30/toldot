@@ -97,6 +97,8 @@ export interface TurnResponse {
   gameOver: boolean;
   grade?: Grade;
   maxTurns: number;
+  goal?: string;
+  objectives?: string[];
 }
 
 export interface SessionData {

@@ -56,7 +56,7 @@ export class GameController {
 
     this.sessionService.updateSession(session);
 
-    // Log turn
+    const eraMeta = this.eraService.loadEra(session.eraId).meta;
     this.sessionService.logTurn({
       sessionId: session.id,
       turnNumber: result.turnNumber,
@@ -85,7 +85,9 @@ export class GameController {
       },
       gameOver: result.gameOver,
       grade: result.grade,
-      maxTurns: this.eraService.loadEra(session.eraId).meta.maxTurns,
+      maxTurns: eraMeta.maxTurns,
+      goal: eraMeta.goal,
+      objectives: eraMeta.objectives,
     };
   }
 }
