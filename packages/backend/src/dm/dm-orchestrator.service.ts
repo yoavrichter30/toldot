@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { OllamaClient } from '../ollama/ollama.client';
+import { LLMClient } from '../llm/llm.client';
 import { EraService } from '../era/era.service';
 import { ValidationEngineService } from '../validation/validation-engine.service';
 import { Session, GameState, Grade } from '../session/session.types';
@@ -18,7 +18,7 @@ export class DMOrchestratorService {
   private readonly logger = new Logger(DMOrchestratorService.name);
 
   constructor(
-    private ollama: OllamaClient,
+    private llm: LLMClient,
     private eraService: EraService,
     private validationEngine: ValidationEngineService,
   ) {}
@@ -28,7 +28,7 @@ async processTurn(action: string, session: Session): Promise<TurnResult> {
     const prompt = this.buildPrompt(era, session.state, action);
     let dmResponse: DMResponse;
 
-    if (process.env.MOCK_OLLAMA === 'true') {
+    if (process.env.MOCK_LLM === 'true') {
       dmResponse = this.mockDMResponse(action, session.state);
     } else {
       try {
@@ -136,7 +136,7 @@ async processTurn(action: string, session: Session): Promise<TurnResult> {
   }
 
   private async callDM(prompt: string, model: string): Promise<DMResponse> {
-    const response = await this.ollama.chat({
+    const response = await this.llm.chat({
       model,
       messages: [
         { role: 'system', content: 'You are a Dungeon Master for an educational history game. Respond with valid JSON only.' },
@@ -147,20 +147,20 @@ async processTurn(action: string, session: Session): Promise<TurnResult> {
 
     // Parse JSON from response
     try {
-      return JSON.parse(response.message.content) as DMResponse;
+      return JSON.parse(response.content) as DMResponse;
     } catch {
       // Retry once with error feedback
-      const retryResponse = await this.ollama.chat({
+      const retryResponse = await this.llm.chat({
         model,
         messages: [
           { role: 'system', content: 'You are a Dungeon Master for an educational history game. Respond with valid JSON only.' },
           { role: 'user', content: prompt },
-          { role: 'assistant', content: response.message.content },
-          { role: 'user', content: `Your response was not valid JSON. Error: ${response.message.content.slice(0, 100)}... Please respond with valid JSON only.` },
+          { role: 'assistant', content: response.content },
+          { role: 'user', content: `Your response was not valid JSON. Error: ${response.content.slice(0, 100)}... Please respond with valid JSON only.` },
         ],
         format: 'json',
       });
-      return JSON.parse(retryResponse.message.content) as DMResponse;
+      return JSON.parse(retryResponse.content) as DMResponse;
     }
   }
 

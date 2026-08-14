@@ -4,7 +4,7 @@ import { EraModule } from '../era/era.module';
 import { SessionModule } from '../session/session.module';
 import { DatabaseService } from '../session/database.service';
 import { DMModule } from '../dm/dm.module';
-import { OllamaClient } from '../ollama/ollama.client';
+import { LLMClient } from '../llm/llm.client';
 
 describe('GameController', () => {
   let controller: GameController;
@@ -15,13 +15,11 @@ describe('GameController', () => {
       imports: [EraModule, SessionModule, DMModule],
       controllers: [GameController],
     })
-      .overrideProvider(OllamaClient)
+      .overrideProvider(LLMClient)
       .useValue({
         chat: jest.fn().mockResolvedValue({
-          message: { content: JSON.stringify({ narration: 'Test', proposed_effects: [], spawned_events: [], historical_notes: [], dm_questions: [] }) },
+          content: JSON.stringify({ narration: 'Test', proposed_effects: [], spawned_events: [], historical_notes: [], dm_questions: [] }),
         }),
-        ping: jest.fn().mockResolvedValue(true),
-        listModels: jest.fn().mockResolvedValue([]),
       })
       .overrideProvider(DatabaseService)
       .useFactory({

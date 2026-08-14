@@ -1,10 +1,14 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { DMOrchestratorService } from './dm-orchestrator.service';
-import { OllamaClient } from '../ollama/ollama.client';
+import { LLMClient } from '../llm/llm.client';
 import { EraService } from '../era/era.service';
 import { EraValidatorService } from '../era/era-validator.service';
 import { ValidationEngineService } from '../validation/validation-engine.service';
 import { Session } from '../session/session.types';
+
+function llmResponse(content: unknown) {
+  return { content: JSON.stringify(content) };
+}
 
 describe('DMOrchestratorService', () => {
   let service: DMOrchestratorService;
@@ -16,21 +20,15 @@ describe('DMOrchestratorService', () => {
       providers: [
         DMOrchestratorService,
         {
-          provide: OllamaClient,
+          provide: LLMClient,
           useValue: {
-            chat: jest.fn().mockResolvedValue({
-              message: {
-                content: JSON.stringify({
-                  narration: 'Test narration',
-                  proposed_effects: [{ target: 'funds', delta: -50, reason: 'test' }],
-                  spawned_events: [],
-                  historical_notes: ['Test note'],
-                  dm_questions: ['What next?'],
-                }),
-              },
-            }),
-            ping: jest.fn().mockResolvedValue(true),
-            listModels: jest.fn().mockResolvedValue([]),
+            chat: jest.fn().mockResolvedValue(llmResponse({
+              narration: 'Test narration',
+              proposed_effects: [{ target: 'funds', delta: -50, reason: 'test' }],
+              spawned_events: [],
+              historical_notes: ['Test note'],
+              dm_questions: ['What next?'],
+            })),
           },
         },
         EraService,
@@ -81,41 +79,33 @@ describe('DMOrchestratorService', () => {
   });
 
   it('should handle DM parse failure gracefully', async () => {
-    // Override mock to return invalid JSON
-    const ollama = module.get<OllamaClient>(OllamaClient);
-    ollama.chat = jest.fn().mockResolvedValue({
-      message: { content: 'not json at all' },
-    });
+    const llm = module.get<LLMClient>(LLMClient);
+    llm.chat = jest.fn().mockResolvedValue({ content: 'not json at all' });
     const result = await service.processTurn('Test', mockSession);
     expect(result.narration).toBeDefined();
     expect(result.narration.length).toBeGreaterThan(0);
   });
 
   it('should enrich spawned events from era event templates', async () => {
-    const ollama = module.get<OllamaClient>(OllamaClient);
-    ollama.chat = jest.fn().mockResolvedValue({
-      message: {
-        content: JSON.stringify({
-          narration: 'Test narration',
-          proposed_effects: [],
-          spawned_events: [
-            {
-              id: 'hapoel_hatzair_founded',
-              title: 'LLM title',
-              description: 'LLM description',
-              choices: [{ label: 'LLM label', key: 'llm_key' }],
-            },
-          ],
-          historical_notes: [],
-          dm_questions: [],
-        }),
-      },
-    });
+    const llm = module.get<LLMClient>(LLMClient);
+    llm.chat = jest.fn().mockResolvedValue(llmResponse({
+      narration: 'Test narration',
+      proposed_effects: [],
+      spawned_events: [
+        {
+          id: 'hapoel_hatzair_founded',
+          title: 'LLM title',
+          description: 'LLM description',
+          choices: [{ label: 'LLM label', key: 'llm_key' }],
+        },
+      ],
+      historical_notes: [],
+      dm_questions: [],
+    }));
 
     const result = await service.processTurn('Test', mockSession);
     expect(result.spawnedEvents).toHaveLength(1);
     const event = result.spawnedEvents[0];
-    // Template data replaces the LLM version
     expect(event.title).toBe("Hapoel Hatza'ir Founded");
     expect(event.description).toContain('Hapoel Hatza');
     expect(event.choices).toHaveLength(2);
@@ -123,25 +113,21 @@ describe('DMOrchestratorService', () => {
   });
 
   it('should keep the LLM version of a spawned event with no template match', async () => {
-    const ollama = module.get<OllamaClient>(OllamaClient);
-    ollama.chat = jest.fn().mockResolvedValue({
-      message: {
-        content: JSON.stringify({
-          narration: 'Test narration',
-          proposed_effects: [],
-          spawned_events: [
-            {
-              id: 'unknown_event',
-              title: 'LLM original title',
-              description: 'LLM original description',
-              choices: [{ label: 'LLM label', key: 'llm_key' }],
-            },
-          ],
-          historical_notes: [],
-          dm_questions: [],
-        }),
-      },
-    });
+    const llm = module.get<LLMClient>(LLMClient);
+    llm.chat = jest.fn().mockResolvedValue(llmResponse({
+      narration: 'Test narration',
+      proposed_effects: [],
+      spawned_events: [
+        {
+          id: 'unknown_event',
+          title: 'LLM original title',
+          description: 'LLM original description',
+          choices: [{ label: 'LLM label', key: 'llm_key' }],
+        },
+      ],
+      historical_notes: [],
+      dm_questions: [],
+    }));
 
     const result = await service.processTurn('Test', mockSession);
     expect(result.spawnedEvents).toHaveLength(1);

@@ -3,7 +3,7 @@ title: "From Moshavot to Yishuv — the Second Aliyah"
 start_date: "1904-01-01"
 end_date: "1914-07-01"
 max_turns: 126
-model: "qwen2.5:3b"
+model: "deepseek/deepseek-v4-flash-latest"
 goal: "Lead the Yishuv committee through the Second Aliyah (1904–1914). Turn scattered, fragile settlements into a connected, self-sustaining Hebrew community — before the era ends."
 objectives:
   - "Strengthen the four foundation tracks: Settlement, Economy, Hebrew Life, Self-Organization."
