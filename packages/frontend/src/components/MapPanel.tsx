@@ -150,7 +150,7 @@ export function MapPanel({
           const isSelected = loc.id === selectedLocationId;
           const isActive = activeLocationIds.includes(loc.id);
           const isHovered = hoveredId === loc.id;
-          const radius = isSelected ? 18 : isHovered ? 15 : 12;
+          const radius = isSelected ? 21 : isHovered ? 17 : 14;
           const failing = (loc.housing ?? 0) <= 0 || (loc.water ?? 0) <= 0 || (loc.health ?? 0) <= 0;
 
           return (
@@ -172,19 +172,25 @@ export function MapPanel({
                   <animate attributeName="opacity" values="0.5;0.1;0.5" dur="2s" repeatCount="indefinite" />
                 </circle>
               )}
-              <ellipse cx={x + 2} cy={y + 2} rx={radius} ry={radius} fill="#000" opacity={0.2} />
-              <circle
-                fill={isSelected ? '#d4a73a' : failing ? '#c0553a' : isHovered ? '#c8a44a' : '#4a8a5a'}
+              {/* Dark halo for contrast against the parchment map */}
+              <circle cx={x} cy={y} r={radius + 4} fill="#1a1410" opacity={0.4} />
 
-                stroke="#fff" strokeWidth={2.5}
+              <ellipse cx={x + 2} cy={y + 2} rx={radius} ry={radius} fill="#000" opacity={0.25} />
+              <circle
+                cx={x} cy={y} r={radius}
+                fill={isSelected ? '#e0b84a' : failing ? '#d0483a' : isHovered ? '#d4a73a' : '#3d9a4d'}
+                stroke="#fff" strokeWidth={3}
                 filter={isSelected ? 'url(#pinShadowSelected)' : 'url(#pinShadow)'}
               />
-              <circle cx={x - 3} cy={y - 3} r={radius * 0.3} fill="#fff" opacity={0.35} />
+              <circle cx={x - 3} cy={y - 3} r={radius * 0.3} fill="#fff" opacity={0.4} />
               <text
-                x={x} y={y + radius + 16} textAnchor="middle"
-                fontSize={isSelected ? 13 : 11}
-                fill="#fff" fontWeight={isSelected ? 'bold' : '600'}
-                style={{ textShadow: '0 1px 3px rgba(0,0,0,0.8)', pointerEvents: 'none' }}
+                x={x} y={y + radius + 18} textAnchor="middle"
+                fontSize={isSelected ? 15 : 13}
+                fill="#fff" fontWeight="700"
+                paintOrder="stroke"
+                stroke="#1a1410"
+                strokeWidth={4}
+                style={{ pointerEvents: 'none' }}
               >
                 {loc.name}
               </text>
