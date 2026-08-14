@@ -7,6 +7,12 @@ import { DMResponse, TurnResult, SpawnedEvent } from './dm.types';
 import { ValidationResult, ValidatedEffect } from '@/validation/validation.types';
 import { Era } from '@/era/era.types';
 
+/** Coerce a value the LLM may return as a string or array into a string[]. */
+function toStrArray(value: unknown): string[] {
+  if (Array.isArray(value)) return value.filter((v): v is string => typeof v === 'string');
+  if (typeof value === 'string' && value.trim()) return [value];
+  return [];
+}
 @Injectable()
 export class DMOrchestratorService {
   private readonly logger = new Logger(DMOrchestratorService.name);
@@ -40,6 +46,15 @@ async processTurn(action: string, session: Session): Promise<TurnResult> {
       }
     }
 
+    // Normalize fields the model sometimes returns as strings/objects instead of arrays.
+    dmResponse = {
+      ...dmResponse,
+      narration: typeof dmResponse.narration === 'string' ? dmResponse.narration : 'The season passes without incident.',
+      proposed_effects: Array.isArray(dmResponse.proposed_effects) ? dmResponse.proposed_effects : [],
+      spawned_events: Array.isArray(dmResponse.spawned_events) ? dmResponse.spawned_events : [],
+      historical_notes: toStrArray(dmResponse.historical_notes),
+      dm_questions: toStrArray(dmResponse.dm_questions),
+    };
     // Validate effects
     const validation: ValidationResult = this.validationEngine.validateEffects(
       (dmResponse.proposed_effects || []).map(e => ({

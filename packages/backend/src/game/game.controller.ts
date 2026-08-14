@@ -77,7 +77,7 @@ export class GameController {
       effectsRejected: result.effectsRejected,
       historicalNotes: result.historicalNotes,
       suggestedActions: result.suggestedActions,
-
+      events: result.spawnedEvents,
       state: {
         resources: result.newState.resources,
         foundationTracks: result.newState.foundationTracks,
