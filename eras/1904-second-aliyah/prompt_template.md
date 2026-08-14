@@ -33,7 +33,7 @@ Be concise and practical — this is a committee making monthly decisions, not a
 - 1904: Second Aliyah begins after the Kishinev pogrom
 - 1905: Hapoel Hatza'ir (The Young Worker) party founded
 - 1906: Poalei Zion party established in Jaffa
-- 1907: Bar Giora (self-defense organization) founded in Sejera
+- 1907: Bar Giora (self-defense organization) founded in Ilaniya
 - 1908: Kinneret Farm established; Ahuzat Bayit (future Tel Aviv) planned
 - 1909: Degania (first kvutza/collective) founded; Hashomer established
 - 1909: Tel Aviv (Ahuzat Bayit) founded on sand dunes near Jaffa
