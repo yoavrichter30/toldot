@@ -12,6 +12,7 @@ import { GameOverScreen } from './GameOverScreen';
 import { ErrorBanner } from './Status';
 import { JournalView } from './JournalView';
 import { MapPanel } from './MapPanel';
+import { Modal } from './Modal';
 
 interface LocationInfo {
   id: string;
@@ -42,7 +43,7 @@ export function GameScreen() {
   const { state, dispatch } = useGame();
   const [selectedLocation, setSelectedLocation] = useState<string | null>(null);
   const [showJournal, setShowJournal] = useState(false);
-  const [showMission, setShowMission] = useState(true);
+  const [showMission, setShowMission] = useState(false);
   const [showLedger, setShowLedger] = useState(false);
   const [projectActionText, setProjectActionText] = useState('');
   const openingStarted = useRef(false);
@@ -109,27 +110,55 @@ export function GameScreen() {
     ? ERA_LOCATIONS.find((l) => l.id === selectedLocation)?.name ?? null
     : null;
 
-  const suggestions = selectedLocName ? [`Build housing in ${selectedLocName}`] : [];
+  const suggestions = selectedLocName
+    ? [...state.suggestions, `Build housing in ${selectedLocName}`]
+    : state.suggestions;
 
   return (
     <div className="game">
       <header className="game-header">
         <h2>Toldot</h2>
         <div className="turn-info">
-          <button className="btn btn-ghost" onClick={() => setShowMission((v) => !v)}>
-            Mission
-          </button>
-          <button className="btn btn-ghost" onClick={() => setShowLedger((v) => !v)}>
-            Ledger
-          </button>
-          <button className="btn btn-ghost" onClick={() => setShowJournal(true)}>
-            Journal
-          </button>
           <span className="round-indicator">
             Round {state.turn}/{state.maxTurns} · {state.date}
           </span>
+          <button className="btn btn-ghost" onClick={() => setShowMission(true)}>Mission</button>
+          <button className="btn btn-ghost" onClick={() => setShowLedger(true)}>Ledger</button>
+          <button className="btn btn-ghost" onClick={() => setShowJournal(true)}>Journal</button>
         </div>
       </header>
+
+      {showMission && (
+        <Modal title="Your Mission" onClose={() => setShowMission(false)}>
+          <ObjectivesPanel
+            goal={state.goal}
+            objectives={state.objectives}
+            turn={state.turn}
+            maxTurns={state.maxTurns}
+            date={state.date}
+          />
+        </Modal>
+      )}
+
+      {showLedger && (
+        <Modal title="Committee Ledger" onClose={() => setShowLedger(false)}>
+          {state.state ? (
+            <>
+              <ResourcePanel
+                resources={state.state.resources}
+                foundationTracks={state.state.foundationTracks}
+              />
+              <CohortPanel cohorts={state.state.cohorts} />
+              <ProjectPanel
+                projects={state.state.projects}
+                onStartProject={(name) => setProjectActionText(`Start the ${name} project`)}
+              />
+            </>
+          ) : (
+            <p className="empty-state">The ledger fills in once the game begins.</p>
+          )}
+        </Modal>
+      )}
 
       {showJournal && <JournalView onClose={() => setShowJournal(false)} />}
 
@@ -158,36 +187,12 @@ export function GameScreen() {
             />
           )}
 
-          {showMission && (
-            <ObjectivesPanel
-              goal={state.goal}
-              objectives={state.objectives}
-              turn={state.turn}
-              maxTurns={state.maxTurns}
-              date={state.date}
-            />
-          )}
-
           <ChatThread
             messages={state.messages}
             pendingEvents={state.events}
             loading={state.loading}
             onChoice={handleEventChoice}
           />
-
-          {showLedger && state.state && (
-            <div className="ledger-panel">
-              <ResourcePanel
-                resources={state.state.resources}
-                foundationTracks={state.state.foundationTracks}
-              />
-              <CohortPanel cohorts={state.state.cohorts} />
-              <ProjectPanel
-                projects={state.state.projects}
-                onStartProject={(name) => setProjectActionText(`Start the ${name} project`)}
-              />
-            </div>
-          )}
 
           <div className="chat-input-area">
             <ActionInput

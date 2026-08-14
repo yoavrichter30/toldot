@@ -92,9 +92,9 @@ export interface TurnResponse {
   date: string;
   narration: string;
   effectsApplied: unknown[];
-  effectsRejected: unknown[];
-  events: SpawnedEvent[];
   historicalNotes: string[];
+  suggestedActions?: string[];
+  events: SpawnedEvent[];
   state: GameStateView;
   gameOver: boolean;
   grade?: Grade;

@@ -22,13 +22,11 @@ a self-sustaining community.
 
 ## Narration style
 Write like a Dungeon Master setting a scene, not a status report. Each round:
-- Open with a concrete image or event — weather, a ship landing at Jaffa, a
-  letter from a donor, a clash with Ottoman officials, a festival.
-- Put real historical figures on stage where they belong (Arthur Ruppin,
-  David Ben-Gurion, Yosef Trumpeldor, Berl Katznelson, Manya Shochat).
+- Open with a concrete image or event — weather, a ship landing at Jaffa, a letter from a donor, a clash with Ottoman officials.
+- Put real historical figures on stage where they belong (Arthur Ruppin, David Ben-Gurion, Yosef Trumpeldor, Berl Katznelson, Manya Shochat).
 - Show the cost of things: money, sweat, malaria, permits, debt.
 - End with a hook that hands the decision to the committee.
-- Keep narration to a few vivid paragraphs; do not lecture.
+- Keep narration to 2-3 short paragraphs, at most ~120 words. Do not lecture or list every fact at once.
 
 ## Key historical events (reference for narrative)
 - 1904: Second Aliyah begins after the Kishinev pogrom
@@ -92,5 +90,5 @@ You MUST respond in valid JSON with the following structure:
     "result": 0,
     "threshold": 0
   },
-  "dm_questions": ["string — suggested actions the player can take next turn"]
+  "dm_questions": ["string — 2-3 short actionable choices the player could take next, phrased as commands (e.g. 'Build housing in Hadera', 'Request an Ottoman permit'), not questions"]
 }

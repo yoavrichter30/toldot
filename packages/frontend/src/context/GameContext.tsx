@@ -20,6 +20,7 @@ interface GameState {
   journalNotes: string[];
   events: SpawnedEvent[];
   state: TurnResponse['state'] | null;
+  suggestions: string[];
   gameOver: boolean;
   grade: string | undefined;
   loading: boolean;
@@ -47,6 +48,7 @@ const initialState: GameState = {
   journalNotes: [],
   events: [],
   state: null,
+  suggestions: [],
   gameOver: false,
   grade: undefined,
   loading: false,
@@ -67,6 +69,7 @@ function gameReducer(state: GameState, action: GameAction): GameState {
         grade: undefined,
         journalNotes: [],
         messages: [],
+        suggestions: [],
         goal: action.goal ?? '',
         objectives: action.objectives ?? [],
       };
@@ -88,6 +91,7 @@ function gameReducer(state: GameState, action: GameAction): GameState {
         journalNotes: [...state.journalNotes, ...action.data.historicalNotes],
         events: action.data.events,
         state: action.data.state,
+        suggestions: action.data.suggestedActions ?? [],
         gameOver: action.data.gameOver,
         grade: action.data.grade,
         goal: action.data.goal ?? state.goal,
@@ -111,6 +115,7 @@ function gameReducer(state: GameState, action: GameAction): GameState {
         events: [],
         journalNotes: [],
         messages: [],
+        suggestions: [],
         gameOver: finished,
         grade: finished ? session.status : undefined,
         loading: false,

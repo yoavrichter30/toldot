@@ -30,6 +30,7 @@ export interface TurnResult {
   effectsRejected: RejectedEffect[];
   spawnedEvents: SpawnedEvent[];
   historicalNotes: string[];
+  suggestedActions: string[];
   newState: GameState;
   gameOver: boolean;
   grade?: Grade;

@@ -94,6 +94,7 @@ async processTurn(action: string, session: Session): Promise<TurnResult> {
       effectsRejected: validation.rejected,
       spawnedEvents,
       historicalNotes: dmResponse.historical_notes || [],
+      suggestedActions: dmResponse.dm_questions || [],
       newState,
       gameOver,
       grade,

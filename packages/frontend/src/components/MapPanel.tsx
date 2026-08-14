@@ -151,6 +151,7 @@ export function MapPanel({
           const isActive = activeLocationIds.includes(loc.id);
           const isHovered = hoveredId === loc.id;
           const radius = isSelected ? 18 : isHovered ? 15 : 12;
+          const failing = (loc.housing ?? 0) <= 0 || (loc.water ?? 0) <= 0 || (loc.health ?? 0) <= 0;
 
           return (
             <g
@@ -173,8 +174,8 @@ export function MapPanel({
               )}
               <ellipse cx={x + 2} cy={y + 2} rx={radius} ry={radius} fill="#000" opacity={0.2} />
               <circle
-                cx={x} cy={y} r={radius}
-                fill={isSelected ? '#d4a73a' : isHovered ? '#c8a44a' : '#b89850'}
+                fill={isSelected ? '#d4a73a' : failing ? '#c0553a' : isHovered ? '#c8a44a' : '#4a8a5a'}
+
                 stroke="#fff" strokeWidth={2.5}
                 filter={isSelected ? 'url(#pinShadowSelected)' : 'url(#pinShadow)'}
               />

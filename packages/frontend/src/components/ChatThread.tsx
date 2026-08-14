@@ -32,12 +32,12 @@ export function ChatThread({ messages, pendingEvents, loading, onChoice }: Props
             {msg.role === 'player' && <div className="chat-sender">You</div>}
             <div className="chat-text">{msg.text}</div>
             {msg.notes && msg.notes.length > 0 && (
-              <details className="chat-lore">
-                <summary>Lore</summary>
+              <div className="chat-lore">
+                <div className="chat-lore-title">What really happened</div>
                 <ul>
                   {msg.notes.map((n, i) => <li key={i}>{n}</li>)}
                 </ul>
-              </details>
+              </div>
             )}
           </div>
         </div>
