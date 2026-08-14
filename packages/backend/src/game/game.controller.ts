@@ -77,6 +77,8 @@ export class GameController {
       effectsRejected: result.effectsRejected,
       historicalNotes: result.historicalNotes,
       suggestedActions: result.suggestedActions,
+      roll: result.roll,
+      epilogue: result.epilogue,
       events: result.spawnedEvents,
       state: {
         resources: result.newState.resources,

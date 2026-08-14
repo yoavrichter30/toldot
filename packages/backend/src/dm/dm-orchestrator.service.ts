@@ -103,6 +103,16 @@ async processTurn(action: string, session: Session): Promise<TurnResult> {
     newState.turn = session.currentTurn + 1;
     newState.date = this.advanceDate(session.date);
 
+    // On game over, generate a short epilogue.
+    let epilogue: string | undefined;
+    if (gameOver) {
+      if (process.env.MOCK_LLM === 'true') {
+        epilogue = 'The era has ended. The committee\u2019s work is done.';
+      } else {
+        epilogue = await this.generateEpilogue(era, newState, grade);
+      }
+    }
+
     return {
       narration: dmResponse.narration,
       effectsApplied: validation.accepted.map(v => v.effect),
@@ -110,6 +120,8 @@ async processTurn(action: string, session: Session): Promise<TurnResult> {
       spawnedEvents,
       historicalNotes: dmResponse.historical_notes || [],
       suggestedActions: dmResponse.dm_questions || [],
+      roll: dmResponse.roll,
+      epilogue,
       newState,
       gameOver,
       grade,
@@ -161,6 +173,30 @@ async processTurn(action: string, session: Session): Promise<TurnResult> {
         format: 'json',
       });
       return JSON.parse(retryResponse.content) as DMResponse;
+    }
+  }
+
+  private async generateEpilogue(era: Era, state: GameState, grade?: Grade): Promise<string | undefined> {
+    const viable = state.locations.filter(l => l.housing > 0 && l.water > 0 && l.health > 0).length;
+    const prompt = [
+      'The historical era of this game has ended. Write a brief epilogue of 2-3 sentences, in the voice of a historian, summarizing what the coordinating committee accomplished and what the Land of Israel looks like at the end of the era.',
+      `Final grade: ${grade ?? 'unknown'}.`,
+      `Foundation tracks: ${JSON.stringify(state.foundationTracks)}.`,
+      `Settlements: ${state.locations.length} total, ${viable} viable.`,
+    ].join('\n');
+    try {
+      const response = await this.llm.chat({
+        model: era.meta.model,
+        messages: [
+          { role: 'system', content: 'You are a historian writing a closing summary for an educational game.' },
+          { role: 'user', content: prompt },
+        ],
+      });
+      const text = response.content.trim();
+      return text || undefined;
+    } catch (err) {
+      this.logger.error(`Epilogue generation failed: ${err}`);
+      return undefined;
     }
   }
 

@@ -31,6 +31,8 @@ export interface TurnResult {
   spawnedEvents: SpawnedEvent[];
   historicalNotes: string[];
   suggestedActions: string[];
+  roll?: { reason: string; result: number; threshold: number };
+  epilogue?: string;
   newState: GameState;
   gameOver: boolean;
   grade?: Grade;

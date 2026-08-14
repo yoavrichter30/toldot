@@ -31,6 +31,13 @@ export function ChatThread({ messages, pendingEvents, loading, onChoice }: Props
             {msg.role === 'dm' && <div className="chat-sender">The Dungeon Master</div>}
             {msg.role === 'player' && <div className="chat-sender">You</div>}
             <div className="chat-text">{msg.text}</div>
+            {msg.roll && (
+              <div className={`chat-roll ${msg.roll.result >= msg.roll.threshold ? 'chat-roll-success' : 'chat-roll-fail'}`}>
+                <span className="roll-label">Roll</span>
+                <span className="roll-values">{msg.roll.result} / {msg.roll.threshold}</span>
+                {msg.roll.reason && <span className="roll-reason">{msg.roll.reason}</span>}
+              </div>
+            )}
             {msg.notes && msg.notes.length > 0 && (
               <div className="chat-lore">
                 <div className="chat-lore-title">What really happened</div>

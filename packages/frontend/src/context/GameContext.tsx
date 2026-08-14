@@ -7,6 +7,7 @@ export interface ChatMessage {
   text: string;
   notes?: string[];
   events?: SpawnedEvent[];
+  roll?: { reason: string; result: number; threshold: number };
 }
 
 interface GameState {
@@ -17,12 +18,13 @@ interface GameState {
   date: string;
   messages: ChatMessage[];
   historicalNotes: string[];
-  journalNotes: string[];
+  journalNotes: { turn: number; text: string }[];
   events: SpawnedEvent[];
   state: TurnResponse['state'] | null;
   suggestions: string[];
   gameOver: boolean;
   grade: string | undefined;
+  epilogue: string;
   loading: boolean;
   error: string | null;
   goal: string;
@@ -36,6 +38,12 @@ type GameAction =
   | { type: 'SET_LOADING'; loading: boolean }
   | { type: 'SET_ERROR'; error: string | null }
   | { type: 'LOAD_SESSION'; session: SessionData };
+
+const OPENING_MESSAGE: ChatMessage = {
+  id: 'opening',
+  role: 'dm',
+  text: 'The year is 1904. The Second Aliyah is underway — thousands of Jewish immigrants from the Russian Empire are landing at Jaffa, fleeing pogroms and poverty. As the coordinating committee of the New Yishuv, you hold the fate of these scattered, fragile settlements in your hands.',
+};
 
 const initialState: GameState = {
   sessionId: null,
@@ -51,6 +59,7 @@ const initialState: GameState = {
   suggestions: [],
   gameOver: false,
   grade: undefined,
+  epilogue: '',
   loading: false,
   error: null,
   goal: '',
@@ -67,8 +76,9 @@ function gameReducer(state: GameState, action: GameAction): GameState {
         turn: 0,
         gameOver: false,
         grade: undefined,
+        epilogue: '',
         journalNotes: [],
-        messages: [],
+        messages: [OPENING_MESSAGE],
         suggestions: [],
         goal: action.goal ?? '',
         objectives: action.objectives ?? [],
@@ -80,6 +90,7 @@ function gameReducer(state: GameState, action: GameAction): GameState {
         text: action.data.narration,
         notes: action.data.historicalNotes,
         events: action.data.events,
+        roll: action.data.roll,
       };
       return {
         ...state,
@@ -88,12 +99,15 @@ function gameReducer(state: GameState, action: GameAction): GameState {
         date: action.data.date,
         messages: [...state.messages, dmMessage],
         historicalNotes: action.data.historicalNotes,
-        journalNotes: [...state.journalNotes, ...action.data.historicalNotes],
+        journalNotes: action.data.historicalNotes.length > 0
+          ? [...state.journalNotes, ...action.data.historicalNotes.map(text => ({ turn: action.data.turn, text }))]
+          : state.journalNotes,
         events: action.data.events,
         state: action.data.state,
         suggestions: action.data.suggestedActions ?? [],
         gameOver: action.data.gameOver,
         grade: action.data.grade,
+        epilogue: action.data.epilogue ?? '',
         goal: action.data.goal ?? state.goal,
         objectives: action.data.objectives ?? state.objectives,
         loading: false,

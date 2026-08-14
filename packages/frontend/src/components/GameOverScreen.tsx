@@ -17,8 +17,11 @@ export function GameOverScreen() {
     <div className="game-over">
       <h1 style={{ color: config.color }}>{config.label}</h1>
       <p className="outcome-text">{config.message}</p>
+      {state.epilogue && (
+        <p className="epilogue-text">{state.epilogue}</p>
+      )}
       <p className="turn-line">
-        Turn {state.turn} of {state.maxTurns} completed
+        Round {state.turn} of {state.maxTurns} completed
       </p>
       <button
         className="btn btn-primary btn-lg"

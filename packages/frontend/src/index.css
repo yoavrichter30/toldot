@@ -1641,3 +1641,84 @@ p {
   letter-spacing: 0.04em;
   margin-bottom: 0.5rem;
 }
+
+/* Dice roll chip */
+.chat-roll {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.6rem;
+  padding: 0.4rem 0.6rem;
+  border-radius: 6px;
+  font-size: 0.82rem;
+  border: 1px solid var(--border);
+}
+
+.chat-roll-success {
+  background: rgba(61, 154, 77, 0.15);
+  border-color: #3d9a4d;
+}
+
+.chat-roll-fail {
+  background: rgba(208, 72, 58, 0.15);
+  border-color: #d0483a;
+}
+
+.roll-label {
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 0.7rem;
+  color: var(--muted);
+}
+
+.roll-values {
+  font-weight: 700;
+  color: var(--text);
+}
+
+.roll-reason {
+  color: var(--muted);
+  font-style: italic;
+}
+
+/* Epilogue */
+.epilogue-text {
+  font-style: italic;
+  color: var(--text);
+  max-width: 34rem;
+  margin: 1rem auto;
+  line-height: 1.6;
+  text-align: left;
+}
+
+/* Journal */
+.journal-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.journal-item {
+  display: flex;
+  gap: 0.75rem;
+  padding: 0.7rem 0;
+  border-bottom: 1px solid var(--border);
+  line-height: 1.5;
+}
+
+.journal-item:last-child {
+  border-bottom: none;
+}
+
+.journal-turn {
+  flex-shrink: 0;
+  font-weight: 700;
+  color: var(--accent-strong);
+  font-size: 0.8rem;
+  min-width: 4.5rem;
+}
+
+.journal-text {
+  color: var(--text);
+}

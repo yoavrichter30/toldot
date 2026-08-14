@@ -93,6 +93,8 @@ export interface TurnResponse {
   narration: string;
   effectsApplied: unknown[];
   historicalNotes: string[];
+  roll?: { reason: string; result: number; threshold: number };
+  epilogue?: string;
   suggestedActions?: string[];
   events: SpawnedEvent[];
   state: GameStateView;
